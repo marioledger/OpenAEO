@@ -14,4 +14,6 @@ OPENAEO_AUDIT_URL: https://example.com
 
 The template uses mock AI mode so it does not require committed secrets. To use OpenAI analysis, add an `OPENAI_API_KEY` secret and remove `--mock-ai` or pass `--openai-api-key "$OPENAI_API_KEY"`.
 
+The workflow only reads repository contents and uploads generated reports as a run artifact. It does not commit audit output back to the repository.
+
 For strategy monitoring, schedule `openaeo monitor` with one or more trusted feeds and upload `openaeo-strategy.md` as an artifact alongside audit reports.
