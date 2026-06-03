@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { Command } from "commander";
 import { auditCrawl, generateMarkdownReport } from "@openaeo/audit";
 import { crawlSite } from "@openaeo/crawler";
+import { generateStrategyMarkdown, runStrategyMonitor } from "@openaeo/strategy";
 
 interface AuditCommandOptions {
   maxPages: string;
@@ -14,6 +15,19 @@ interface AuditCommandOptions {
   openaiApiKey?: string;
   model?: string;
   projectName?: string;
+  allowPrivateNetwork: boolean;
+}
+
+interface MonitorCommandOptions {
+  site: string;
+  feed: string[];
+  maxItems: string;
+  out: string;
+  json: boolean;
+  markdown: boolean;
+  mockAi: boolean;
+  openaiApiKey?: string;
+  model?: string;
   allowPrivateNetwork: boolean;
 }
 
@@ -69,5 +83,61 @@ program
     console.log(`Reports: ${options.json ? jsonPath : ""}${options.json && options.markdown ? ", " : ""}${options.markdown ? markdownPath : ""}`);
     console.log(`Completed in ${Date.now() - started}ms`);
   });
+
+program
+  .command("monitor")
+  .description("Scan news/RSS/Atom feeds for AI-search strategy changes and generate an action brief.")
+  .requiredOption("--site <url>", "Website URL the strategy brief is for")
+  .option("--feed <url>", "RSS or Atom feed URL to scan; repeat for multiple feeds", collectFeed, [])
+  .option("--max-items <number>", "Maximum feed items to analyze", "20")
+  .option("--out <directory>", "Directory for strategy artifacts", "reports")
+  .option("--json", "Write JSON strategy brief", true)
+  .option("--markdown", "Write Markdown strategy brief", true)
+  .option("--mock-ai", "Use deterministic strategy analysis instead of the OpenAI API", false)
+  .option("--openai-api-key <key>", "OpenAI API key for strategy analysis; defaults to OPENAI_API_KEY")
+  .option("--model <model>", "OpenAI model for strategy analysis", "gpt-5-mini")
+  .option("--allow-private-network", "Allow localhost/private-network feeds for trusted fixtures", false)
+  .action(async (options: MonitorCommandOptions) => {
+    const started = Date.now();
+    const maxItems = Number.parseInt(options.maxItems, 10);
+    if (!Number.isFinite(maxItems) || maxItems < 1) {
+      throw new Error("--max-items must be a positive integer");
+    }
+    if (options.feed.length === 0) {
+      throw new Error("At least one --feed URL is required");
+    }
+
+    const openAiApiKey = options.openaiApiKey ?? process.env.OPENAI_API_KEY;
+    const brief = await runStrategyMonitor({
+      siteUrl: options.site,
+      feedUrls: options.feed,
+      maxItems,
+      mockAi: options.mockAi || !openAiApiKey,
+      openAiApiKey,
+      model: options.model,
+      allowPrivateNetwork: options.allowPrivateNetwork
+    });
+    const outDir = resolve(options.out);
+    await mkdir(outDir, { recursive: true });
+    const jsonPath = resolve(outDir, "openaeo-strategy.json");
+    const markdownPath = resolve(outDir, "openaeo-strategy.md");
+
+    if (options.json) {
+      await writeFile(jsonPath, `${JSON.stringify(brief, null, 2)}\n`, "utf8");
+    }
+    if (options.markdown) {
+      await writeFile(markdownPath, generateStrategyMarkdown(brief), "utf8");
+    }
+
+    console.log(`Strategy signals: ${brief.signals.length}`);
+    console.log(`Items scanned: ${brief.items.length}`);
+    console.log(`Mode: ${brief.mode}`);
+    console.log(`Reports: ${options.json ? jsonPath : ""}${options.json && options.markdown ? ", " : ""}${options.markdown ? markdownPath : ""}`);
+    console.log(`Completed in ${Date.now() - started}ms`);
+  });
+
+function collectFeed(value: string, previous: string[]): string[] {
+  return [...previous, value];
+}
 
 await program.parseAsync(process.argv);

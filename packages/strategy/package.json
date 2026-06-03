@@ -1,11 +1,8 @@
 {
-  "name": "openaeo",
+  "name": "@openaeo/strategy",
   "version": "0.1.0",
-  "description": "CLI for auditing AI answer-engine readiness and open-web attribution signals.",
+  "description": "Continuous AI-search strategy monitoring for OpenAEO.",
   "type": "module",
-  "bin": {
-    "openaeo": "./dist/index.js"
-  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -19,9 +16,7 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "@openaeo/audit": "0.1.0",
-    "@openaeo/crawler": "0.1.0",
-    "@openaeo/strategy": "0.1.0",
-    "commander": "^15.0.0"
+    "@openaeo/schemas": "0.1.0",
+    "openai": "^6.41.0"
   }
 }

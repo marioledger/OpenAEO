@@ -73,6 +73,39 @@ export const aiAnalysisSchema = z.object({
   recommendations: z.array(z.string())
 });
 
+export const strategyItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  url: z.string().url(),
+  source: z.string(),
+  publishedAt: z.string().optional(),
+  summary: z.string().default(""),
+  matchedTerms: z.array(z.string()).default([])
+});
+
+export const strategySignalSchema = z.object({
+  id: z.string(),
+  topic: z.string(),
+  urgency: z.enum(["watch", "soon", "now"]),
+  evidence: z.array(z.string()).default([]),
+  action: z.string(),
+  sourceItemIds: z.array(z.string()).default([])
+});
+
+export const strategyBriefSchema = z.object({
+  id: z.string(),
+  siteUrl: z.string().url(),
+  generatedAt: z.string(),
+  mode: z.enum(["mock", "openai"]),
+  scannedFeeds: z.array(z.string().url()),
+  items: z.array(strategyItemSchema),
+  signals: z.array(strategySignalSchema),
+  summary: z.string(),
+  immediateActions: z.array(z.string()),
+  experiments: z.array(z.string()),
+  contentUpdates: z.array(z.string())
+});
+
 export const auditReportSchema = z.object({
   id: z.string(),
   projectName: z.string(),
@@ -105,6 +138,9 @@ export type PageSnapshot = z.infer<typeof pageSnapshotSchema>;
 export type SiteSignals = z.infer<typeof siteSignalsSchema>;
 export type AiAnalysis = z.infer<typeof aiAnalysisSchema>;
 export type AuditReport = z.infer<typeof auditReportSchema>;
+export type StrategyItem = z.infer<typeof strategyItemSchema>;
+export type StrategySignal = z.infer<typeof strategySignalSchema>;
+export type StrategyBrief = z.infer<typeof strategyBriefSchema>;
 
 export function createSampleReport(): AuditReport {
   return {

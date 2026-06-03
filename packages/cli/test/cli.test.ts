@@ -15,6 +15,22 @@ const server = createServer((request, response) => {
     response.end(`<urlset><url><loc>${baseUrl}/</loc></url></urlset>`);
     return;
   }
+  if (request.url === "/feed.xml") {
+    response.setHeader("content-type", "application/rss+xml");
+    response.end(`<?xml version="1.0"?>
+      <rss version="2.0">
+        <channel>
+          <title>AI Search Updates</title>
+          <item>
+            <title>AI search citation update for publishers</title>
+            <link>${baseUrl}/news/citations</link>
+            <pubDate>Thu, 04 Jun 2026 00:00:00 GMT</pubDate>
+            <description>Crawler, attribution, and source citation guidance changed for publisher pages.</description>
+          </item>
+        </channel>
+      </rss>`);
+    return;
+  }
   response.end(`<!doctype html><html><head><title>Fixture Publisher Page</title><meta name="description" content="A fixture page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/"></head><body><h1>Fixture Publisher Page</h1><p data-answer>Short answer.</p></body></html>`);
 });
 
@@ -42,6 +58,31 @@ describe("openaeo cli", () => {
       expect(result.stdout).toContain("OpenAEO score:");
       expect(await readFile(join(outDir, "openaeo-report.json"), "utf8")).toContain("\"score\"");
       expect(await readFile(join(outDir, "openaeo-report.md"), "utf8")).toContain("# OpenAEO Audit Report");
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes JSON and Markdown strategy briefs", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "openaeo-strategy-"));
+    try {
+      const result = await execa("tsx", [
+        "packages/cli/src/index.ts",
+        "monitor",
+        "--site",
+        "https://publisher.example",
+        "--feed",
+        `${baseUrl}/feed.xml`,
+        "--out",
+        outDir,
+        "--mock-ai",
+        "--allow-private-network"
+      ], {
+        cwd: process.cwd()
+      });
+      expect(result.stdout).toContain("Strategy signals:");
+      expect(await readFile(join(outDir, "openaeo-strategy.json"), "utf8")).toContain("\"signals\"");
+      expect(await readFile(join(outDir, "openaeo-strategy.md"), "utf8")).toContain("# OpenAEO Strategy Brief");
     } finally {
       await rm(outDir, { recursive: true, force: true });
     }

@@ -8,5 +8,6 @@ All notable OpenAEO changes are tracked here. OpenAEO follows semantic versionin
 - Added respectful crawling with robots.txt, sitemap discovery, crawl limits, and default private-network blocking.
 - Added SEO, AEO, GEO, trust, `llms.txt`, schema.org, citation, freshness, and answer-block audit rules.
 - Added OpenAI API analysis plus deterministic mock mode for CI, tests, and demos.
+- Added `openaeo monitor` for RSS/Atom strategy scanning with OpenAI-generated action briefs.
 - Added a Next.js dashboard for sample reports and local audits.
 - Added CI, issue templates, security policy, contributing guide, and sample reports.

@@ -27,6 +27,7 @@ OpenAEO helps both sides of that bargain.
 - Generates practical fixes such as starter `llms.txt`, JSON-LD templates, and citation block patterns.
 - Uses the OpenAI API for model-generated recommendations when `OPENAI_API_KEY` or `--openai-api-key` is provided.
 - Includes deterministic mock mode only for CI, tests, and local demos without secrets.
+- Scans news/RSS/Atom feeds for AI-search changes and turns them into immediate publisher strategy briefs.
 - Includes a Next.js dashboard for viewing sample reports and running local audits.
 - Blocks private-network crawl targets by default to reduce SSRF risk in hosted deployments.
 
@@ -42,6 +43,15 @@ Run an audit:
 
 ```bash
 OPENAI_API_KEY=sk-... npm exec openaeo -- audit https://example.com --max-pages 8 --out reports
+```
+
+Generate a strategy brief from monitored feeds:
+
+```bash
+OPENAI_API_KEY=sk-... npm exec openaeo -- monitor \
+  --site https://example.com \
+  --feed https://openai.com/news/rss.xml \
+  --out reports
 ```
 
 Start the dashboard:
@@ -65,6 +75,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - [x] `llms.txt`, schema.org, citation, freshness, author, and answer-block checks
 - [x] OpenAI API analysis for model-generated recommendations
 - [x] Deterministic mock AI mode for tests and demos
+- [x] Feed-based strategy monitor for AI-search news and changelog scanning
 
 ### v0.2 - Better Publisher Workflows
 
@@ -74,12 +85,14 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - [ ] Add configurable crawl budgets and URL include/exclude patterns
 - [ ] Add exportable GitHub Actions templates for scheduled audits
 - [ ] Add a public gallery of anonymized example reports
+- [ ] Add saved watchlists for recurring strategy scans
 
 ### v0.3 - AI Visibility Experiments
 
 - [ ] Add prompt-set testing for brand/entity visibility
 - [ ] Track citation opportunities where competitors are cited and the audited site is not
 - [ ] Add OpenAI-powered prompt-set experiments for answer visibility and citation readiness
+- [ ] Add strategy drift reports that compare news signals against site changes
 - [ ] Add drift reports for changed answers, citations, and source positions
 - [ ] Add a plugin API for custom scoring rules
 
@@ -117,6 +130,15 @@ The Markdown report includes:
 - ethical crawl stance
 
 See [sample reports](examples/sample-reports/README.md) for public-site output.
+
+Strategy monitor output:
+
+```text
+Strategy signals: 3
+Items scanned: 20
+Mode: openai
+Reports: /path/to/reports/openaeo-strategy.json, /path/to/reports/openaeo-strategy.md
+```
 
 ## Why This Matters To AI Search
 
@@ -164,9 +186,10 @@ examples/fixtures     local fixture site for validation
 
 ```bash
 openaeo audit <url> [options]
+openaeo monitor --site <url> --feed <rss-or-atom-url> [options]
 ```
 
-Options:
+Audit options:
 
 ```text
 --max-pages <number>     Maximum same-origin pages to crawl
@@ -176,6 +199,18 @@ Options:
 --model <model>          OpenAI model
 --project-name <name>    Human-readable project name
 --allow-private-network  Allow localhost/private-network targets for trusted local fixtures
+```
+
+Monitor options:
+
+```text
+--site <url>             Website URL the strategy brief is for
+--feed <url>             RSS or Atom feed URL to scan; repeat for multiple feeds
+--max-items <number>     Maximum feed items to analyze
+--out <directory>        Strategy output directory
+--mock-ai                Use deterministic strategy analysis instead of the OpenAI API
+--openai-api-key <key>   OpenAI API key; defaults to OPENAI_API_KEY
+--model <model>          OpenAI model
 ```
 
 ## OpenAI API Analysis
@@ -192,6 +227,15 @@ Mock mode exists for CI, tests, and local demos where secrets should not be requ
 
 ```bash
 npm exec openaeo -- audit https://example.com --mock-ai
+```
+
+The strategy monitor uses the same OpenAI-only model path:
+
+```bash
+npm exec openaeo -- monitor \
+  --site https://example.com \
+  --feed https://openai.com/news/rss.xml \
+  --openai-api-key "$OPENAI_API_KEY"
 ```
 
 ## Ethical Stance

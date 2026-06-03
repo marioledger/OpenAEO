@@ -5,6 +5,6 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "references": [{ "path": "../schemas" }, { "path": "../crawler" }, { "path": "../audit" }],
+  "references": [{ "path": "../schemas" }, { "path": "../crawler" }, { "path": "../audit" }, { "path": "../strategy" }],
   "include": ["src"]
 }

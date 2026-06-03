@@ -24,7 +24,7 @@ npm run build
 - Add a fixture page that captures a real SEO/AEO pattern.
 - Add an audit rule with a focused unit test.
 - Improve generated fix templates.
-- Document platform behavior for ChatGPT, Perplexity, Google AI Overviews, Gemini, or other answer engines.
+- Document ChatGPT-style source, citation, and attribution behavior.
 
 ## Rule Guidelines
 
