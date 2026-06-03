@@ -31,9 +31,9 @@ program
   .option("--out <directory>", "Directory for report artifacts", "reports")
   .option("--json", "Write JSON report", true)
   .option("--markdown", "Write Markdown report", true)
-  .option("--mock-ai", "Use deterministic mock analysis even when an API key exists", true)
-  .option("--openai-api-key <key>", "OpenAI API key for optional BYOK analysis")
-  .option("--model <model>", "OpenAI model for optional BYOK analysis", "gpt-5-mini")
+  .option("--mock-ai", "Use deterministic mock analysis instead of the OpenAI API", false)
+  .option("--openai-api-key <key>", "OpenAI API key for analysis; defaults to OPENAI_API_KEY")
+  .option("--model <model>", "OpenAI model for analysis", "gpt-5-mini")
   .option("--project-name <name>", "Readable project name for report output")
   .option("--allow-private-network", "Allow localhost/private-network targets for trusted local fixtures", false)
   .action(async (url: string, options: AuditCommandOptions) => {
@@ -43,11 +43,12 @@ program
       throw new Error("--max-pages must be a positive integer");
     }
 
+    const openAiApiKey = options.openaiApiKey ?? process.env.OPENAI_API_KEY;
     const crawl = await crawlSite(url, { maxPages, allowPrivateNetwork: options.allowPrivateNetwork });
     const report = await auditCrawl(crawl, {
       projectName: options.projectName,
-      mockAi: options.mockAi || !options.openaiApiKey,
-      openAiApiKey: options.openaiApiKey,
+      mockAi: options.mockAi || !openAiApiKey,
+      openAiApiKey,
       model: options.model
     });
     const outDir = resolve(options.out);

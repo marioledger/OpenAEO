@@ -12,4 +12,4 @@ Update:
 OPENAEO_AUDIT_URL: https://example.com
 ```
 
-The template uses mock AI mode so it does not require paid API keys. To use optional OpenAI analysis later, add an `OPENAI_API_KEY` secret and pass `--openai-api-key "$OPENAI_API_KEY"`.
+The template uses mock AI mode so it does not require committed secrets. To use OpenAI analysis, add an `OPENAI_API_KEY` secret and remove `--mock-ai` or pass `--openai-api-key "$OPENAI_API_KEY"`.

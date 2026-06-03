@@ -99,8 +99,8 @@ export default function Dashboard() {
 
         <div className="sidebarPanel">
           <span>Audit mode</span>
-          <strong>{report.aiAnalysis.mode === "mock" ? "Mock AI" : "OpenAI"}</strong>
-          <p>Runs without paid keys by default.</p>
+          <strong>{report.aiAnalysis.mode === "mock" ? "Deterministic demo" : "OpenAI API"}</strong>
+          <p>{report.aiAnalysis.mode === "mock" ? "Use OPENAI_API_KEY for model analysis." : "Model-generated recommendations are enabled."}</p>
         </div>
 
         <a className="repoLink" href="https://github.com/marioledger/OpenAEO" target="_blank" rel="noreferrer">

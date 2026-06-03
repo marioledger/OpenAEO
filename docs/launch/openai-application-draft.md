@@ -6,7 +6,7 @@ OpenAEO helps keep the open web useful for ChatGPT. It gives publishers and OSS 
 
 ## How will you use API credits? Max 500 characters
 
-API credits will power optional OpenAI-based audit recommendations, fixture generation, rule evaluation, maintainer automation, release notes, PR review, and security-focused checks. Core demos and CI stay mockable so contributors can work without paid keys.
+API credits will power OpenAI-based audit recommendations, fixture generation, rule evaluation, maintainer automation, release notes, PR review, and security-focused checks. Core demos and CI stay mockable so contributors do not need committed secrets.
 
 ## Anything else? Max 500 characters
 

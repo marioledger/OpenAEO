@@ -25,8 +25,8 @@ OpenAEO helps both sides of that bargain.
 - Audits AEO/GEO signals: `llms.txt`, `llms-full.txt`, schema.org JSON-LD, answer blocks, citations, author/source metadata, freshness, and internal source paths.
 - Generates JSON and Markdown reports.
 - Generates practical fixes such as starter `llms.txt`, JSON-LD templates, and citation block patterns.
-- Runs without paid APIs by default through deterministic mock AI analysis.
-- Supports optional bring-your-own OpenAI analysis when you want model-generated recommendations.
+- Uses the OpenAI API for model-generated recommendations when `OPENAI_API_KEY` or `--openai-api-key` is provided.
+- Includes deterministic mock mode only for CI, tests, and local demos without secrets.
 - Includes a Next.js dashboard for viewing sample reports and running local audits.
 - Blocks private-network crawl targets by default to reduce SSRF risk in hosted deployments.
 
@@ -41,7 +41,7 @@ npm run test
 Run an audit:
 
 ```bash
-npm exec openaeo -- audit https://example.com --max-pages 8 --out reports --mock-ai
+OPENAI_API_KEY=sk-... npm exec openaeo -- audit https://example.com --max-pages 8 --out reports
 ```
 
 Start the dashboard:
@@ -63,8 +63,8 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - [x] Respectful crawler with robots.txt, sitemap, and crawl-limit support
 - [x] SEO/AEO/GEO/trust scoring rules
 - [x] `llms.txt`, schema.org, citation, freshness, author, and answer-block checks
+- [x] OpenAI API analysis for model-generated recommendations
 - [x] Deterministic mock AI mode for tests and demos
-- [x] Optional bring-your-own OpenAI analysis
 
 ### v0.2 - Better Publisher Workflows
 
@@ -79,7 +79,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 
 - [ ] Add prompt-set testing for brand/entity visibility
 - [ ] Track citation opportunities where competitors are cited and the audited site is not
-- [ ] Add provider adapters for ChatGPT Search-style, Perplexity-style, and Google AI Overview-style workflows where APIs or lawful data sources are available
+- [ ] Add OpenAI-powered prompt-set experiments for answer visibility and citation readiness
 - [ ] Add drift reports for changed answers, citations, and source positions
 - [ ] Add a plugin API for custom scoring rules
 
@@ -97,7 +97,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - CI runs lint, typecheck, tests, and production build on every push and pull request.
 - Dependabot monitors npm and GitHub Actions updates weekly.
 - Releases are tracked in [CHANGELOG.md](CHANGELOG.md) and prepared with the [release process](docs/release-process.md).
-- Core demos and tests run in deterministic mock mode without paid API keys.
+- Core demos and tests run in deterministic mock mode without committing API keys.
 
 ## Example Output
 
@@ -171,16 +171,16 @@ Options:
 ```text
 --max-pages <number>     Maximum same-origin pages to crawl
 --out <directory>        Report output directory
---mock-ai                Use deterministic mock AI analysis
---openai-api-key <key>   Optional BYOK OpenAI analysis
---model <model>          Optional OpenAI model
+--mock-ai                Use deterministic mock analysis instead of the OpenAI API
+--openai-api-key <key>   OpenAI API key; defaults to OPENAI_API_KEY
+--model <model>          OpenAI model
 --project-name <name>    Human-readable project name
 --allow-private-network  Allow localhost/private-network targets for trusted local fixtures
 ```
 
-## Optional OpenAI Analysis
+## OpenAI API Analysis
 
-Core OpenAEO works without paid APIs. To add model-generated recommendations:
+OpenAEO uses the OpenAI API for model-generated recommendations. Set `OPENAI_API_KEY` or pass `--openai-api-key`:
 
 ```bash
 npm exec openaeo -- audit https://example.com \
@@ -188,7 +188,11 @@ npm exec openaeo -- audit https://example.com \
   --model gpt-5-mini
 ```
 
-CI, tests, demos, and first-run onboarding use mock mode by default.
+Mock mode exists for CI, tests, and local demos where secrets should not be required:
+
+```bash
+npm exec openaeo -- audit https://example.com --mock-ai
+```
 
 ## Ethical Stance
 

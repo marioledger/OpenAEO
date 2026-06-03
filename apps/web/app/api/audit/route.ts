@@ -10,7 +10,11 @@ export async function POST(request: Request) {
 
   try {
     const crawl = await crawlSite(body.url, { maxPages: Math.min(Math.max(body.maxPages ?? 5, 1), 20) });
-    const report = await auditCrawl(crawl, { mockAi: true });
+    const openAiApiKey = process.env.OPENAI_API_KEY;
+    const report = await auditCrawl(crawl, {
+      mockAi: !openAiApiKey,
+      openAiApiKey
+    });
     return NextResponse.json(report);
   } catch (error) {
     return NextResponse.json(

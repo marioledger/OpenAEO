@@ -7,6 +7,6 @@ All notable OpenAEO changes are tracked here. OpenAEO follows semantic versionin
 - Added `openaeo audit <url>` with JSON and Markdown report exports.
 - Added respectful crawling with robots.txt, sitemap discovery, crawl limits, and default private-network blocking.
 - Added SEO, AEO, GEO, trust, `llms.txt`, schema.org, citation, freshness, and answer-block audit rules.
-- Added deterministic mock AI analysis plus optional bring-your-own OpenAI analysis.
+- Added OpenAI API analysis plus deterministic mock mode for CI, tests, and demos.
 - Added a Next.js dashboard for sample reports and local audits.
 - Added CI, issue templates, security policy, contributing guide, and sample reports.

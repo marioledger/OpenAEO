@@ -18,7 +18,7 @@ I built OpenAEO, an open-source CLI + dashboard for auditing AI search readiness
 
 It checks classic SEO basics, but focuses on the new source-quality layer: llms.txt, schema.org, citations, freshness, author/publisher metadata, answer-ready sections, and attribution signals.
 
-The idea is not to game ChatGPT/Perplexity/Google AI Overviews. It is to help publishers expose better canonical sources so AI systems can understand and credit them.
+The idea is not to game answer engines. It is to help publishers expose better canonical sources so ChatGPT-style AI systems can understand and credit them.
 
 Repo: https://github.com/marioledger/OpenAEO
 
