@@ -6,6 +6,7 @@ export default tseslint.config(
     ignores: [
       "**/.next/**",
       ".reference-repos/**",
+      "examples/sample-reports/**",
       "**/dist/**",
       "node_modules/**",
       "coverage/**",
