@@ -1,0 +1,32 @@
+name: Scheduled OpenAEO Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1"
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build OpenAEO
+        run: npm run build
+
+      - name: Run audit
+        run: npm exec openaeo -- audit "$OPENAEO_AUDIT_URL" --max-pages 20 --out reports --mock-ai
+        env:
+          OPENAEO_AUDIT_URL: https://example.com
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openaeo-report
+          path: reports/
