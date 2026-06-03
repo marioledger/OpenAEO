@@ -10,7 +10,7 @@ OpenAEO is a CLI + dashboard that audits whether a website is ready for AI answe
 
 The motivation is simple: as search shifts from links to generated answers, publishers need transparent tools to remain crawlable, citeable, and credited. This is not black-hat GEO. It is source-readiness tooling for the open web.
 
-Repo: <GITHUB_URL>
+Repo: https://github.com/marioledger/OpenAEO
 
 ## Reddit r/SEO
 
@@ -20,7 +20,7 @@ It checks classic SEO basics, but focuses on the new source-quality layer: llms.
 
 The idea is not to game ChatGPT/Perplexity/Google AI Overviews. It is to help publishers expose better canonical sources so AI systems can understand and credit them.
 
-Repo: <GITHUB_URL>
+Repo: https://github.com/marioledger/OpenAEO
 
 ## X / LinkedIn
 
@@ -28,4 +28,4 @@ Search is moving from blue links to generated answers. If publishers lose attrib
 
 I’m launching OpenAEO: an open-source CLI + dashboard that audits whether pages are crawlable, citeable, and attribution-ready for AI answer engines.
 
-Repo: <GITHUB_URL>
+Repo: https://github.com/marioledger/OpenAEO
