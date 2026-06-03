@@ -1,0 +1,15 @@
+# Scheduled Audits
+
+OpenAEO can run in GitHub Actions so publishers and maintainers get recurring JSON and Markdown reports without hosting the dashboard.
+
+## Template
+
+Copy `examples/github-actions/scheduled-audit.yml` into `.github/workflows/openaeo-audit.yml` in the site or docs repository you want to monitor.
+
+Update:
+
+```yaml
+OPENAEO_AUDIT_URL: https://example.com
+```
+
+The template uses mock AI mode so it does not require paid API keys. To use optional OpenAI analysis later, add an `OPENAI_API_KEY` secret and pass `--openai-api-key "$OPENAI_API_KEY"`.
