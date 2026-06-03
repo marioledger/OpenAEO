@@ -1,0 +1,13 @@
+.reference-repos/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+*.tsbuildinfo
+reports/
+tmp/
+.DS_Store

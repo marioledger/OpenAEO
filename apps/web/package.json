@@ -1,0 +1,23 @@
+{
+  "name": "@openaeo/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAEO dashboard for AI search readiness reports.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@openaeo/audit": "0.1.0",
+    "@openaeo/crawler": "0.1.0",
+    "@openaeo/schemas": "0.1.0",
+    "lucide-react": "^0.562.0",
+    "next": "^16.2.7",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {}
+}

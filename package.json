@@ -1,0 +1,37 @@
+{
+  "name": "openaeo-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAEO helps publishers make the open web crawlable, citeable, and attribution-ready for AI answer engines.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/web",
+    "build": "npm run build -w @openaeo/schemas && npm run build -w @openaeo/crawler && npm run build -w @openaeo/audit && npm run build -w openaeo && npm run build -w @openaeo/web",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc -b packages/schemas packages/crawler packages/audit packages/cli && npm run typecheck -w @openaeo/web",
+    "test": "vitest run",
+    "audit:fixture": "tsx packages/cli/src/index.ts audit http://127.0.0.1:4173 --max-pages 5 --out reports --mock-ai"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.2.7",
+    "execa": "^9.6.0",
+    "playwright": "^1.60.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0",
+    "vitest": "^4.0.15"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
