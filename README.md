@@ -103,6 +103,8 @@ The Markdown report includes:
 - generated fixes
 - ethical crawl stance
 
+See [sample reports](examples/sample-reports/README.md) for public-site output.
+
 ## Why This Matters To OpenAI And AI Search
 
 AI answer engines need the best possible source material. The web gets worse when publishers feel invisible, scraped, or replaced. OpenAEO is built around a simple idea: make it easier for high-quality pages to be understood and cited, while making it harder for low-quality manipulation to masquerade as authority.
