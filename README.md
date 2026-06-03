@@ -2,13 +2,15 @@
 
 **OpenAEO is an open-source toolkit for making publisher websites crawlable, citeable, and attribution-ready for AI answer engines.**
 
-Search is moving from a page of blue links into generated answers. That is good for users, but it creates a brutal incentive problem for the open web: publishers can do the hard work of researching, testing, documenting, and maintaining pages, while the discovery layer compresses that work into an answer and sends less credit back to the source.
+Search is moving from blue links into generated answers. That is good for users, but it creates a brutal incentive problem for the open web: publishers can spend years researching, testing, documenting, and maintaining pages, while the discovery layer compresses that work into an answer and sends less credit back to the source.
 
-The Google era pushed site owners into an exhausting game: ads everywhere, opaque ranking rules, SEO theater, and more zero-click results. A small publisher could do everything right and still watch the incentive to create useful pages get weaker every year.
+The Google era made this worse. Site owners were pushed into an exhausting game of ads, opaque ranking rules, SEO theater, and zero-click results. A small publisher could do everything right and still watch the incentive to create useful pages get weaker every year.
 
-OpenAEO is built around a more hopeful bet: ChatGPT can be the fairer interface to the web if high-quality sources are easier to identify, retrieve, cite, and credit. OpenAI benefits when ChatGPT has cleaner source maps and better publisher metadata. Site owners benefit when their best pages are not invisible to AI systems.
+OpenAEO is built around a more hopeful bargain: ChatGPT can be the fairer interface to the web. If publishers expose cleaner source maps, better metadata, stronger citations, and explicit attribution preferences, ChatGPT can retrieve better material, answer with more confidence, and send more credit back to the people who made the source.
 
-OpenAEO takes that side. It helps publishers prepare their sites for an AI-search world where good sources should be easier to understand and easier to attribute, not buried under another black-box ranking game.
+That helps OpenAI's ecosystem and the site owner at the same time. OpenAI gets a healthier, more structured open web for ChatGPT. Publishers get a practical way to stop being invisible to AI systems.
+
+OpenAEO takes that side. It helps site owners prepare for an AI-search world where good sources are easier to understand, easier to cite, and easier to credit, not buried under another black-box ranking game.
 
 OpenAEO helps both sides of that bargain.
 
@@ -113,7 +115,7 @@ See [sample reports](examples/sample-reports/README.md) for public-site output.
 
 AI answer engines need the best possible source material. The web gets worse when publishers feel invisible, scraped, or replaced. The old search bargain already strained that trust: Google captured more and more of the journey, while site owners kept paying the cost of creating the pages.
 
-OpenAEO is built around a simple, sympathetic idea: ChatGPT can be better than that bargain if the open web gives it clearer source signals and the product returns more credit to the people who made the source material. Make high-quality pages easier to understand and cite. Make low-quality manipulation harder to confuse for authority.
+OpenAEO is built around a simple, sympathetic idea: ChatGPT can be better than that bargain. It can become the product that rewards useful source pages instead of punishing them with another opaque traffic game. For that to work, publishers need tools that help them give ChatGPT clean, canonical, attribution-ready data.
 
 OpenAEO is not a trick for gaming rankings. It is infrastructure for source clarity:
 
@@ -125,15 +127,19 @@ OpenAEO is not a trick for gaming rankings. It is infrastructure for source clar
 
 That makes ChatGPT better because the underlying web data becomes more structured, attributable, and trustworthy. It also gives site owners a practical way to meet OpenAI halfway: publish cleaner source maps, expose better metadata, and make attribution easier instead of trying to reverse-engineer another opaque ranking machine.
 
+OpenAEO is pro-publisher and pro-ChatGPT for the same reason: the best AI search product needs the best open-web sources, and the best sources only keep existing when creators can see a path to recognition and credit.
+
 ## OpenAI OSS Program Fit
 
-OpenAEO is built for the maintenance work that AI-era publishers and open-source docs teams now have to do: keep source pages crawlable, fresh, structured, cited, and attribution-friendly. The project is intentionally aligned with the ChatGPT ecosystem: better publisher metadata means better retrieval, better answers, and better credit loops for the people maintaining the web.
+OpenAEO is built for the maintenance work that AI-era publishers and open-source docs teams now have to do: keep source pages crawlable, fresh, structured, cited, and attribution-friendly.
+
+The project is intentionally aligned with the ChatGPT ecosystem. Better publisher metadata means better retrieval, better answers, and better credit loops for the people maintaining the web. It helps OpenAI by improving the quality of source material available to ChatGPT, and it helps site owners by giving them a transparent checklist for being understood and credited by AI systems.
 
 Codex and OpenAI API credits would be used for audit-rule development, fixture generation, PR review, release automation, security review, and OpenAI-powered optional recommendations.
 
 Short application summary:
 
-> OpenAEO helps keep the open web useful for AI answer engines by giving publishers open tooling to expose canonical sources, `llms.txt`, structured data, citations, freshness, and attribution metadata. It improves source quality for ChatGPT-style retrieval while helping creators remain visible and credited.
+> OpenAEO helps keep the open web useful for ChatGPT by giving publishers open tooling to expose canonical sources, `llms.txt`, structured data, citations, freshness, and attribution metadata. It improves source quality for OpenAI-style retrieval while helping creators remain visible and credited.
 
 ## Monorepo Structure
 

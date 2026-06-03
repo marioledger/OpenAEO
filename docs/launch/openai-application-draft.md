@@ -2,7 +2,7 @@
 
 ## Why does this repository qualify? Max 500 characters
 
-OpenAEO helps keep the open web useful for AI answer engines. It gives publishers and OSS docs teams open tooling to expose canonical sources, llms.txt, structured data, citations, freshness, and attribution metadata so ChatGPT-style retrieval can use higher-quality, better-credited web sources.
+OpenAEO helps keep the open web useful for ChatGPT. It gives publishers and OSS docs teams open tooling to expose canonical sources, llms.txt, structured data, citations, freshness, and attribution metadata so OpenAI-style retrieval can use higher-quality, better-credited web sources.
 
 ## How will you use API credits? Max 500 characters
 
@@ -10,4 +10,4 @@ API credits will power optional OpenAI-based audit recommendations, fixture gene
 
 ## Anything else? Max 500 characters
 
-Search is shifting from links to generated answers. OpenAEO is an attribution-first alternative to spammy SEO tooling: it helps publishers make source pages clearer, fresher, more citeable, and easier for AI systems to credit.
+Google-era search made publishers chase ads, opaque rankings, and zero-click results. OpenAEO is a healthier bargain for the ChatGPT ecosystem: help site owners publish cleaner, citeable source data so AI answers get better and creators can still be credited.
