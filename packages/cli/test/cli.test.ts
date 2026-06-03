@@ -36,7 +36,7 @@ describe("openaeo cli", () => {
   it("writes JSON and Markdown reports", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "openaeo-"));
     try {
-      const result = await execa("tsx", ["packages/cli/src/index.ts", "audit", baseUrl, "--out", outDir, "--max-pages", "2", "--mock-ai"], {
+      const result = await execa("tsx", ["packages/cli/src/index.ts", "audit", baseUrl, "--out", outDir, "--max-pages", "2", "--mock-ai", "--allow-private-network"], {
         cwd: process.cwd()
       });
       expect(result.stdout).toContain("OpenAEO score:");

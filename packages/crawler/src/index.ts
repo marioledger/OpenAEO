@@ -1,10 +1,13 @@
 import * as cheerio from "cheerio";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import type { PageSnapshot, SiteSignals } from "@openaeo/schemas";
 
 export interface CrawlOptions {
   maxPages?: number;
   timeoutMs?: number;
   userAgent?: string;
+  allowPrivateNetwork?: boolean;
 }
 
 export interface CrawlResult {
@@ -24,13 +27,16 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
   const maxPages = Math.max(1, options.maxPages ?? 8);
   const timeoutMs = options.timeoutMs ?? 10_000;
   const userAgent = options.userAgent ?? DEFAULT_USER_AGENT;
+  const allowPrivateNetwork = options.allowPrivateNetwork ?? false;
   const errors: string[] = [];
   const blockedUrls: string[] = [];
 
+  await assertSafeFetchUrl(normalizedStart, allowPrivateNetwork);
+
   const robotsUrl = new URL("/robots.txt", origin).toString();
-  const robotsText = await fetchText(robotsUrl, { timeoutMs, userAgent }).catch(() => undefined);
+  const robotsText = await fetchText(robotsUrl, { timeoutMs, userAgent, allowPrivateNetwork }).catch(() => undefined);
   const robotsRules = parseRobotsTxt(robotsText ?? "");
-  const siteSignals = await discoverSiteSignals(origin, robotsText, { timeoutMs, userAgent });
+  const siteSignals = await discoverSiteSignals(origin, robotsText, { timeoutMs, userAgent, allowPrivateNetwork });
 
   const sitemapQueue = siteSignals.sitemap.discoveredUrls.filter((url) => sameOrigin(url, origin));
   const queue = unique([normalizedStart, ...sitemapQueue]).slice(0, Math.max(maxPages * 2, maxPages));
@@ -48,7 +54,7 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
     }
 
     try {
-      const page = await fetchPageSnapshot(nextUrl, { timeoutMs, userAgent });
+      const page = await fetchPageSnapshot(nextUrl, { timeoutMs, userAgent, allowPrivateNetwork });
       pages.push(page);
       for (const link of page.internalLinks) {
         if (!visited.has(link) && queue.length < maxPages * 3) {
@@ -82,7 +88,7 @@ export function normalizeUrl(rawUrl: string, base?: string): string {
 async function discoverSiteSignals(
   origin: string,
   robotsText: string | undefined,
-  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent">>
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<SiteSignals> {
   const robotsUrl = new URL("/robots.txt", origin).toString();
   const sitemapFromRobots = robotsText?.match(/^sitemap:\s*(.+)$/im)?.[1]?.trim();
@@ -120,7 +126,7 @@ async function discoverSiteSignals(
 
 async function fetchPageSnapshot(
   url: string,
-  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent">>
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<PageSnapshot> {
   const started = Date.now();
   const response = await fetchWithTimeout(url, options);
@@ -213,7 +219,7 @@ function collectJsonLdTypes(value: unknown, types: Set<string>): void {
 
 async function findFirstText(
   urls: string[],
-  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent">>
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<{ url?: string; text?: string }> {
   for (const url of urls) {
     try {
@@ -227,7 +233,7 @@ async function findFirstText(
 
 async function fetchText(
   url: string,
-  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent">>
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<string> {
   const response = await fetchWithTimeout(url, options);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -236,18 +242,75 @@ async function fetchText(
 
 async function fetchWithTimeout(
   url: string,
-  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent">>
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>,
+  redirectsRemaining = 3
 ): Promise<Response> {
+  await assertSafeFetchUrl(url, options.allowPrivateNetwork);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       signal: controller.signal,
+      redirect: "manual",
       headers: { "user-agent": options.userAgent }
     });
+    if (isRedirect(response.status) && redirectsRemaining > 0) {
+      const location = response.headers.get("location");
+      if (location) {
+        return fetchWithTimeout(normalizeUrl(location, url), options, redirectsRemaining - 1);
+      }
+    }
+    return response;
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function assertSafeFetchUrl(rawUrl: string, allowPrivateNetwork: boolean): Promise<void> {
+  const url = new URL(rawUrl);
+  if (!["http:", "https:"].includes(url.protocol)) {
+    throw new Error(`Unsupported URL protocol: ${url.protocol}`);
+  }
+  if (allowPrivateNetwork) return;
+
+  const hostname = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  const addresses = isIP(hostname)
+    ? [{ address: hostname }]
+    : await lookup(hostname, { all: true, verbatim: true });
+  const blocked = addresses.find(({ address }) => isPrivateAddress(address));
+  if (blocked) {
+    throw new Error(`Refusing to crawl private or local network address: ${hostname}`);
+  }
+}
+
+function isRedirect(status: number): boolean {
+  return [301, 302, 303, 307, 308].includes(status);
+}
+
+function isPrivateAddress(address: string): boolean {
+  const normalized = address.toLowerCase();
+  if (normalized !== address) return isPrivateAddress(normalized);
+  if (address === "::1" || address === "0:0:0:0:0:0:0:1") return true;
+  if (address.startsWith("fe80:") || address.startsWith("fc") || address.startsWith("fd")) return true;
+  if (address.startsWith("::ffff:")) return isPrivateAddress(address.slice(7));
+  if (!address.includes(".")) return false;
+
+  const parts = address.split(".").map((part) => Number.parseInt(part, 10));
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+    return true;
+  }
+  const [a, b] = parts;
+  return (
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 198 && (b === 18 || b === 19)) ||
+    a >= 224
+  );
 }
 
 function parseRobotsTxt(text: string): string[] {

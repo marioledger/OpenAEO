@@ -2,15 +2,13 @@
 
 **OpenAEO is an open-source toolkit for making publisher websites crawlable, citeable, and attribution-ready for AI answer engines.**
 
-Search is moving from blue links into generated answers. That is good for users, but it creates a brutal incentive problem for the open web: publishers can spend years researching, testing, documenting, and maintaining pages, while the discovery layer compresses that work into an answer and sends less credit back to the source.
+Search is moving from blue links into generated answers. That is useful for readers, but it creates a real maintenance problem for the open web: publishers spend time researching, documenting, correcting, and updating pages, while answer interfaces need clearer ways to identify canonical sources and credit them accurately.
 
-The Google era made this worse. Site owners were pushed into an exhausting game of ads, opaque ranking rules, SEO theater, and zero-click results. A small publisher could do everything right and still watch the incentive to create useful pages get weaker every year.
+OpenAEO is built around a practical bargain: if publishers expose cleaner source maps, better metadata, stronger citations, and explicit attribution preferences, AI answer engines can retrieve better material, answer with more confidence, and preserve more context about the people who made the source.
 
-OpenAEO is built around a more hopeful bargain: ChatGPT can be the fairer interface to the web. If publishers expose cleaner source maps, better metadata, stronger citations, and explicit attribution preferences, ChatGPT can retrieve better material, answer with more confidence, and send more credit back to the people who made the source.
+That helps the AI ecosystem and the site owner at the same time. Answer products get healthier, more structured web data. Publishers get a transparent way to make useful pages easier to understand, cite, and credit.
 
-That helps OpenAI's ecosystem and the site owner at the same time. OpenAI gets a healthier, more structured open web for ChatGPT. Publishers get a practical way to stop being invisible to AI systems.
-
-OpenAEO takes that side. It helps site owners prepare for an AI-search world where good sources are easier to understand, easier to cite, and easier to credit, not buried under another black-box ranking game.
+OpenAEO takes that side. It helps site owners prepare for an AI-search world where good sources are easier to understand, easier to cite, and easier to credit.
 
 OpenAEO helps both sides of that bargain.
 
@@ -30,6 +28,7 @@ OpenAEO helps both sides of that bargain.
 - Runs without paid APIs by default through deterministic mock AI analysis.
 - Supports optional bring-your-own OpenAI analysis when you want model-generated recommendations.
 - Includes a Next.js dashboard for viewing sample reports and running local audits.
+- Blocks private-network crawl targets by default to reduce SSRF risk in hosted deployments.
 
 ## Quick Start
 
@@ -92,6 +91,14 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - [ ] Security hardening for hosted audit APIs
 - [ ] Documentation site with recipes for publishers, docs teams, journalists, and open-source maintainers
 
+## Project Health
+
+- MIT licensed with a documented [security policy](SECURITY.md), [contribution guide](CONTRIBUTING.md), and [maintainer responsibilities](MAINTAINERS.md).
+- CI runs lint, typecheck, tests, and production build on every push and pull request.
+- Dependabot monitors npm and GitHub Actions updates weekly.
+- Releases are tracked in [CHANGELOG.md](CHANGELOG.md) and prepared with the [release process](docs/release-process.md).
+- Core demos and tests run in deterministic mock mode without paid API keys.
+
 ## Example Output
 
 ```text
@@ -111,11 +118,11 @@ The Markdown report includes:
 
 See [sample reports](examples/sample-reports/README.md) for public-site output.
 
-## Why This Matters To OpenAI And AI Search
+## Why This Matters To AI Search
 
-AI answer engines need the best possible source material. The web gets worse when publishers feel invisible, scraped, or replaced. The old search bargain already strained that trust: Google captured more and more of the journey, while site owners kept paying the cost of creating the pages.
+AI answer engines need the best possible source material. The web gets worse when publishers feel invisible, scraped, or replaced. OpenAEO focuses on the maintenance layer that makes attribution possible: canonical URLs, source maps, structured data, freshness, and evidence near claims.
 
-OpenAEO is built around a simple, sympathetic idea: ChatGPT can be better than that bargain. It can become the product that rewards useful source pages instead of punishing them with another opaque traffic game. For that to work, publishers need tools that help them give ChatGPT clean, canonical, attribution-ready data.
+ChatGPT and other answer products can build more durable trust when useful source pages are easy to discover and cite. For that to work, publishers need open tooling that helps them provide clean, canonical, attribution-ready data.
 
 OpenAEO is not a trick for gaming rankings. It is infrastructure for source clarity:
 
@@ -125,15 +132,15 @@ OpenAEO is not a trick for gaming rankings. It is infrastructure for source clar
 - citations near factual claims instead of unsupported summaries
 - `llms.txt` source maps instead of crawler guesswork
 
-That makes ChatGPT better because the underlying web data becomes more structured, attributable, and trustworthy. It also gives site owners a practical way to meet OpenAI halfway: publish cleaner source maps, expose better metadata, and make attribution easier instead of trying to reverse-engineer another opaque ranking machine.
+That makes answer systems better because the underlying web data becomes more structured, attributable, and trustworthy. It also gives site owners a practical checklist: publish cleaner source maps, expose better metadata, and make attribution easier.
 
-OpenAEO is pro-publisher and pro-ChatGPT for the same reason: the best AI search product needs the best open-web sources, and the best sources only keep existing when creators can see a path to recognition and credit.
+OpenAEO is pro-publisher and pro-answer-quality for the same reason: the best AI search products need the best open-web sources, and the best sources only keep existing when creators can see a path to recognition and credit.
 
-## OpenAI OSS Program Fit
+## Maintainer Workflow Fit
 
 OpenAEO is built for the maintenance work that AI-era publishers and open-source docs teams now have to do: keep source pages crawlable, fresh, structured, cited, and attribution-friendly.
 
-The project is intentionally aligned with the ChatGPT ecosystem. Better publisher metadata means better retrieval, better answers, and better credit loops for the people maintaining the web. It helps OpenAI by improving the quality of source material available to ChatGPT, and it helps site owners by giving them a transparent checklist for being understood and credited by AI systems.
+Better publisher metadata means better retrieval, better answers, and better credit loops for the people maintaining the web. OpenAEO turns that into maintainer work that can be reviewed in pull requests: audit rules, fixtures, generated reports, release notes, documentation, and security hardening.
 
 Codex and OpenAI API credits would be used for audit-rule development, fixture generation, PR review, release automation, security review, and OpenAI-powered optional recommendations.
 
@@ -149,7 +156,7 @@ packages/cli          openaeo audit <url>
 packages/crawler      respectful site crawler
 packages/audit        scoring, rules, fixes, AI analysis
 packages/schemas      shared Zod schemas and sample report
-docs/research         reference research and license notes
+docs                  launch notes, scheduled audit docs, and assets
 examples/fixtures     local fixture site for validation
 ```
 
@@ -168,6 +175,7 @@ Options:
 --openai-api-key <key>   Optional BYOK OpenAI analysis
 --model <model>          Optional OpenAI model
 --project-name <name>    Human-readable project name
+--allow-private-network  Allow localhost/private-network targets for trusted local fixtures
 ```
 
 ## Optional OpenAI Analysis

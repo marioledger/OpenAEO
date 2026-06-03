@@ -58,11 +58,15 @@ describe("crawlSite", () => {
   });
 
   it("collects page and site signals", async () => {
-    const result = await crawlSite(baseUrl, { maxPages: 2 });
+    const result = await crawlSite(baseUrl, { maxPages: 2, allowPrivateNetwork: true });
     expect(result.pages.length).toBeGreaterThanOrEqual(1);
     expect(result.pages[0]?.title).toBe("Fixture Site");
     expect(result.pages[0]?.schemaTypes).toContain("Article");
     expect(result.siteSignals.llmsTxt.found).toBe(true);
     expect(result.siteSignals.sitemap.discoveredUrls).toContain(`${baseUrl}/`);
+  });
+
+  it("blocks private-network crawls unless explicitly allowed", async () => {
+    await expect(crawlSite(baseUrl, { maxPages: 1 })).rejects.toThrow("private or local network");
   });
 });

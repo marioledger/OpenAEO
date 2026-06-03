@@ -14,6 +14,7 @@ interface AuditCommandOptions {
   openaiApiKey?: string;
   model?: string;
   projectName?: string;
+  allowPrivateNetwork: boolean;
 }
 
 const program = new Command();
@@ -34,6 +35,7 @@ program
   .option("--openai-api-key <key>", "OpenAI API key for optional BYOK analysis")
   .option("--model <model>", "OpenAI model for optional BYOK analysis", "gpt-5-mini")
   .option("--project-name <name>", "Readable project name for report output")
+  .option("--allow-private-network", "Allow localhost/private-network targets for trusted local fixtures", false)
   .action(async (url: string, options: AuditCommandOptions) => {
     const started = Date.now();
     const maxPages = Number.parseInt(options.maxPages, 10);
@@ -41,7 +43,7 @@ program
       throw new Error("--max-pages must be a positive integer");
     }
 
-    const crawl = await crawlSite(url, { maxPages });
+    const crawl = await crawlSite(url, { maxPages, allowPrivateNetwork: options.allowPrivateNetwork });
     const report = await auditCrawl(crawl, {
       projectName: options.projectName,
       mockAi: options.mockAi || !options.openaiApiKey,

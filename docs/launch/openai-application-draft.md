@@ -10,4 +10,4 @@ API credits will power optional OpenAI-based audit recommendations, fixture gene
 
 ## Anything else? Max 500 characters
 
-Google-era search made publishers chase ads, opaque rankings, and zero-click results. OpenAEO is a healthier bargain for the ChatGPT ecosystem: help site owners publish cleaner, citeable source data so AI answers get better and creators can still be credited.
+OpenAEO is early, but it is intentionally built as maintainer-grade OSS: MIT license, CI, tests, security policy, deterministic demos, issue templates, and a public roadmap. The goal is practical open-web infrastructure: better source data for answer systems and clearer attribution paths for creators.
