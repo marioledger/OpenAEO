@@ -11,3 +11,4 @@ coverage/
 reports/
 tmp/
 .DS_Store
+.vercel/
