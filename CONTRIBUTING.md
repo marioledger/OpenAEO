@@ -12,6 +12,13 @@ npm run test
 npm run build
 ```
 
+## Pull Request Checklist
+
+- Keep changes small enough to review.
+- Add or update tests when audit behavior changes.
+- Include fixture pages for crawler edge cases.
+- Update README/docs when user-facing commands or reports change.
+
 ## Good First Contributions
 
 - Add a fixture page that captures a real SEO/AEO pattern.
