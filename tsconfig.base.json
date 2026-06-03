@@ -14,5 +14,5 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "exclude": ["node_modules", "dist", ".next", ".reference-repos"]
+  "exclude": ["node_modules", "dist", ".next"]
 }

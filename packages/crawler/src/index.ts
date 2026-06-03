@@ -16,7 +16,7 @@ export interface CrawlResult {
   errors: string[];
 }
 
-const DEFAULT_USER_AGENT = "OpenAEO/0.1 (+https://github.com/openaeo/openaeo)";
+const DEFAULT_USER_AGENT = "OpenAEO/0.1";
 
 export async function crawlSite(startUrl: string, options: CrawlOptions = {}): Promise<CrawlResult> {
   const normalizedStart = normalizeUrl(startUrl);

@@ -33,6 +33,6 @@ npm run build
 - Do not add spam, cloaking, link-farm, keyword-stuffing, or ranking-manipulation workflows.
 - Keep OpenAEO focused on source quality, attribution, crawler clarity, and structured evidence.
 
-## Reference Code Policy
+## Original Work Policy
 
-Reference repositories may be studied for product and architecture inspiration. Do not copy code unless the license is compatible, attribution is preserved, and the maintainers agree the reuse is worth it. GPL-licensed code must not be copied into this MIT repo.
+Contributions should be original work or normal package dependencies with compatible licenses. Do not paste third-party source into OpenAEO unless the license, attribution, and review path are clear.

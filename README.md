@@ -194,22 +194,6 @@ Responsible defaults:
 - encourage visible citations and dates
 - keep generated fixes reviewable by humans
 
-## Reference Projects
-
-OpenAEO was inspired by the open-source and research ecosystem around crawlers, AEO, GEO, and AI visibility. The implementation in this repo is original. Reference repos were cloned locally for research, then summarized in `docs/research/reference-notes.md`.
-
-Key references:
-
-- `danishashko/geo-aeo-tracker`
-- `PhialsBasement/LibreCrawl`
-- `any4ai/AnyCrawl`
-- `beb7/gflare-tk`
-- `answer-engine/aeo`
-- AgenticGEO
-- E-GEO
-
-See `docs/research/license-audit.md` before reusing any reference code. See `docs/research/puzzle-map.md` for how the reference projects influenced OpenAEO's architecture.
-
 ## Contributing
 
 OpenAEO needs new audit rules, site fixtures, schema examples, docs, and real-world reports. Start with `CONTRIBUTING.md`.
