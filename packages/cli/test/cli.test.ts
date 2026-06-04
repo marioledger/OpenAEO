@@ -85,11 +85,11 @@ describe("openaeo cli", () => {
         "--mock-ai",
         "--allow-private-network",
         "--include",
-        "/about",
+        "/ab*",
         "--include",
-        "/draft",
+        "/dra*",
         "--exclude",
-        "/draft"
+        "/dra*"
       ], {
         cwd: process.cwd()
       });

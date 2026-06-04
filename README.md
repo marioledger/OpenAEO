@@ -45,6 +45,8 @@ Run an audit:
 OPENAI_API_KEY=sk-... npm exec openaeo -- audit https://example.com --max-pages 8 --out reports
 ```
 
+The starting URL is always crawled first; `--include` and `--exclude` only filter discovered sitemap and internal links.
+
 Limit an audit to selected URL paths:
 
 ```bash
@@ -208,8 +210,8 @@ Audit options:
 --model <model>          OpenAI model
 --project-name <name>    Human-readable project name
 --allow-private-network  Allow localhost/private-network targets for trusted local fixtures
---include <pattern>      Only crawl URLs whose path matches this glob-style pattern; repeat for multiple patterns
---exclude <pattern>      Skip URLs whose path matches this glob-style pattern; repeat for multiple patterns
+--include <pattern>      Only crawl URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns
+--exclude <pattern>      Skip URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns
 ```
 
 Monitor options:

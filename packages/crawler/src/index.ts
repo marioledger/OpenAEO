@@ -346,21 +346,53 @@ function sameOrigin(url: string, origin: string): boolean {
 }
 
 function createUrlFilter(includePatterns: string[], excludePatterns: string[]): (url: string) => boolean {
-  const includes = includePatterns.map(patternToRegExp);
-  const excludes = excludePatterns.map(patternToRegExp);
+  const includes = includePatterns.map(normalizePattern);
+  const excludes = excludePatterns.map(normalizePattern);
   return (url) => {
     const candidate = urlFilterCandidate(url);
-    const included = includes.length === 0 || includes.some((pattern) => pattern.test(candidate));
-    const excluded = excludes.some((pattern) => pattern.test(candidate));
+    const included = includes.length === 0 || includes.some((pattern) => matchesPattern(candidate, pattern));
+    const excluded = excludes.some((pattern) => matchesPattern(candidate, pattern));
     return included && !excluded;
   };
 }
 
-function patternToRegExp(pattern: string): RegExp {
+function normalizePattern(pattern: string): string {
   const trimmed = pattern.trim();
-  if (!trimmed) return /.*/;
-  const escaped = trimmed.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
-  return new RegExp(escaped);
+  return trimmed;
+}
+
+function matchesPattern(candidate: string, pattern: string): boolean {
+  if (pattern === "") return true;
+  if (!pattern.includes("*")) return candidate === pattern;
+  if (pattern === "*") return true;
+
+  const parts = pattern.split("*");
+  let position = 0;
+  let startIndex = 0;
+  let endIndex = parts.length - 1;
+
+  if (!pattern.startsWith("*")) {
+    const prefix = parts[0] ?? "";
+    if (!candidate.startsWith(prefix)) return false;
+    position = prefix.length;
+    startIndex = 1;
+  }
+
+  if (!pattern.endsWith("*")) {
+    const suffix = parts[endIndex] ?? "";
+    if (!candidate.endsWith(suffix)) return false;
+    endIndex -= 1;
+  }
+
+  for (let index = startIndex; index <= endIndex; index += 1) {
+    const segment = parts[index];
+    if (!segment) continue;
+    const found = candidate.indexOf(segment, position);
+    if (found === -1) return false;
+    position = found + segment.length;
+  }
+
+  return true;
 }
 
 function urlFilterCandidate(url: string): string {

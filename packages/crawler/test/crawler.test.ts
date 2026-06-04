@@ -75,8 +75,8 @@ describe("crawlSite", () => {
     const result = await crawlSite(baseUrl, {
       maxPages: 3,
       allowPrivateNetwork: true,
-      includePatterns: ["/about", "/draft"],
-      excludePatterns: ["/draft"]
+      includePatterns: ["/ab*", "/dra*"],
+      excludePatterns: ["/dra*"]
     });
     const crawledPaths = result.pages.map((page) => new URL(page.url).pathname);
     expect(crawledPaths).toEqual(["/", "/about"]);
