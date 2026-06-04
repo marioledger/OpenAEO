@@ -12,7 +12,7 @@ const server = createServer((request, response) => {
     return;
   }
   if (request.url === "/sitemap.xml") {
-    response.end(`<urlset><url><loc>${baseUrl}/</loc></url></urlset>`);
+    response.end(`<urlset><url><loc>${baseUrl}/</loc></url><url><loc>${baseUrl}/about</loc></url><url><loc>${baseUrl}/draft</loc></url></urlset>`);
     return;
   }
   if (request.url === "/feed.xml") {
@@ -31,7 +31,15 @@ const server = createServer((request, response) => {
       </rss>`);
     return;
   }
-  response.end(`<!doctype html><html><head><title>Fixture Publisher Page</title><meta name="description" content="A fixture page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/"></head><body><h1>Fixture Publisher Page</h1><p data-answer>Short answer.</p></body></html>`);
+  if (request.url === "/about") {
+    response.end(`<!doctype html><html><head><title>About Fixture Publisher</title><meta name="description" content="An about page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/about"></head><body><h1>About Fixture Publisher</h1><p data-answer>Short answer.</p></body></html>`);
+    return;
+  }
+  if (request.url === "/draft") {
+    response.end(`<!doctype html><html><head><title>Draft Fixture Publisher</title><meta name="description" content="A draft page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/draft"></head><body><h1>Draft Fixture Publisher</h1><p data-answer>Short answer.</p></body></html>`);
+    return;
+  }
+  response.end(`<!doctype html><html><head><title>Fixture Publisher Page</title><meta name="description" content="A fixture page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/"></head><body><h1>Fixture Publisher Page</h1><p data-answer>Short answer.</p><a href="/about">About</a><a href="/draft">Draft</a></body></html>`);
 });
 
 beforeAll(async () => {
@@ -58,6 +66,37 @@ describe("openaeo cli", () => {
       expect(result.stdout).toContain("OpenAEO score:");
       expect(await readFile(join(outDir, "openaeo-report.json"), "utf8")).toContain("\"score\"");
       expect(await readFile(join(outDir, "openaeo-report.md"), "utf8")).toContain("# OpenAEO Audit Report");
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
+  it("passes include and exclude crawl filters to audit reports", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "openaeo-filtered-"));
+    try {
+      await execa("tsx", [
+        "packages/cli/src/index.ts",
+        "audit",
+        baseUrl,
+        "--out",
+        outDir,
+        "--max-pages",
+        "3",
+        "--mock-ai",
+        "--allow-private-network",
+        "--include",
+        "/ab*",
+        "--include",
+        "/dra*",
+        "--exclude",
+        "/dra*"
+      ], {
+        cwd: process.cwd()
+      });
+      const report = JSON.parse(await readFile(join(outDir, "openaeo-report.json"), "utf8")) as {
+        pages: { url: string }[];
+      };
+      expect(report.pages.map((page) => new URL(page.url).pathname)).toEqual(["/", "/about"]);
     } finally {
       await rm(outDir, { recursive: true, force: true });
     }

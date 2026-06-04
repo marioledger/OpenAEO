@@ -45,6 +45,16 @@ Run an audit:
 OPENAI_API_KEY=sk-... npm exec openaeo -- audit https://example.com --max-pages 8 --out reports
 ```
 
+The starting URL is always crawled first; `--include` and `--exclude` only filter discovered sitemap and internal links.
+
+Limit an audit to selected URL paths:
+
+```bash
+npm exec openaeo -- audit https://example.com \
+  --include "/docs/*" \
+  --exclude "/docs/archive/*"
+```
+
 Generate a strategy brief from monitored feeds:
 
 ```bash
@@ -82,7 +92,8 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - [ ] Add report comparison between audit runs
 - [ ] Add more schema templates for Article, FAQPage, Product, Organization, SoftwareApplication, and Dataset
 - [ ] Add broken-link and redirect-chain reporting
-- [ ] Add configurable crawl budgets and URL include/exclude patterns
+- [ ] Add configurable crawl budgets
+- [x] Add URL include/exclude crawl patterns
 - [x] Add exportable GitHub Actions templates for [scheduled audits](docs/scheduled-audits.md)
 - [ ] Add a public gallery of anonymized example reports
 - [ ] Add saved watchlists for recurring strategy scans
@@ -199,6 +210,8 @@ Audit options:
 --model <model>          OpenAI model
 --project-name <name>    Human-readable project name
 --allow-private-network  Allow localhost/private-network targets for trusted local fixtures
+--include <pattern>      Only crawl URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns
+--exclude <pattern>      Skip URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns
 ```
 
 Monitor options:
