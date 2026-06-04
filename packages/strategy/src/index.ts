@@ -317,7 +317,7 @@ async function assertSafeFetchUrl(rawUrl: string, allowPrivateNetwork: boolean):
   const addresses = isIP(hostname)
     ? [{ address: hostname }]
     : await lookup(hostname, { all: true, verbatim: true });
-  const blocked = addresses.find(({ address }) => isPrivateAddress(address));
+  const blocked = addresses.find(({ address }: { address: string }) => isPrivateAddress(address));
   if (blocked) {
     throw new Error(`Refusing to monitor private or local network address: ${hostname}`);
   }
