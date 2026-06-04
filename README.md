@@ -194,6 +194,8 @@ Audit options:
 ```text
 --max-pages <number>     Maximum same-origin pages to crawl
 --out <directory>        Report output directory
+--no-json                Skip JSON report output
+--no-markdown            Skip Markdown report output
 --mock-ai                Use deterministic mock analysis instead of the OpenAI API
 --openai-api-key <key>   OpenAI API key; defaults to OPENAI_API_KEY
 --model <model>          OpenAI model
@@ -208,6 +210,8 @@ Monitor options:
 --feed <url>             RSS or Atom feed URL to scan; repeat for multiple feeds
 --max-items <number>     Maximum feed items to analyze
 --out <directory>        Strategy output directory
+--no-json                Skip JSON strategy brief output
+--no-markdown            Skip Markdown strategy brief output
 --mock-ai                Use deterministic strategy analysis instead of the OpenAI API
 --openai-api-key <key>   OpenAI API key; defaults to OPENAI_API_KEY
 --model <model>          OpenAI model
