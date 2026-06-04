@@ -16,6 +16,8 @@ interface AuditCommandOptions {
   model?: string;
   projectName?: string;
   allowPrivateNetwork: boolean;
+  include: string[];
+  exclude: string[];
 }
 
 interface MonitorCommandOptions {
@@ -50,6 +52,8 @@ program
   .option("--model <model>", "OpenAI model for analysis", "gpt-5-mini")
   .option("--project-name <name>", "Readable project name for report output")
   .option("--allow-private-network", "Allow localhost/private-network targets for trusted local fixtures", false)
+  .option("--include <pattern>", "Only crawl URLs whose path matches this glob-style pattern; repeat for multiple patterns", collectPattern, [])
+  .option("--exclude <pattern>", "Skip URLs whose path matches this glob-style pattern; repeat for multiple patterns", collectPattern, [])
   .action(async (url: string, options: AuditCommandOptions) => {
     const started = Date.now();
     const maxPages = Number.parseInt(options.maxPages, 10);
@@ -58,7 +62,12 @@ program
     }
 
     const openAiApiKey = options.openaiApiKey ?? process.env.OPENAI_API_KEY;
-    const crawl = await crawlSite(url, { maxPages, allowPrivateNetwork: options.allowPrivateNetwork });
+    const crawl = await crawlSite(url, {
+      maxPages,
+      allowPrivateNetwork: options.allowPrivateNetwork,
+      includePatterns: options.include,
+      excludePatterns: options.exclude
+    });
     const report = await auditCrawl(crawl, {
       projectName: options.projectName,
       mockAi: options.mockAi || !openAiApiKey,
@@ -137,6 +146,10 @@ program
   });
 
 function collectFeed(value: string, previous: string[]): string[] {
+  return [...previous, value];
+}
+
+function collectPattern(value: string, previous: string[]): string[] {
   return [...previous, value];
 }
 
