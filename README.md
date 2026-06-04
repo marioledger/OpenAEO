@@ -83,7 +83,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 - [ ] Add more schema templates for Article, FAQPage, Product, Organization, SoftwareApplication, and Dataset
 - [ ] Add broken-link and redirect-chain reporting
 - [ ] Add configurable crawl budgets and URL include/exclude patterns
-- [ ] Add exportable GitHub Actions templates for scheduled audits
+- [x] Add exportable GitHub Actions templates for [scheduled audits](docs/scheduled-audits.md)
 - [ ] Add a public gallery of anonymized example reports
 - [ ] Add saved watchlists for recurring strategy scans
 
