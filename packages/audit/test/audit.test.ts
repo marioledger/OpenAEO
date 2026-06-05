@@ -20,6 +20,7 @@ const crawl: CrawlResult = {
       title: "Example Source",
       description: "Short",
       canonical: "https://example.com",
+      redirectChain: ["https://example.com", "https://www.example.com"],
       h1: ["Example Source"],
       headings: ["Example Source"],
       internalLinks: [],
@@ -43,6 +44,7 @@ describe("audit rules", () => {
     expect(issues.map((issue) => issue.id).join(" ")).toContain("missing-llms-txt");
     expect(issues.map((issue) => issue.id).join(" ")).toContain("missing-schema");
     expect(issues.map((issue) => issue.id).join(" ")).toContain("missing-author");
+    expect(issues.map((issue) => issue.id).join(" ")).toContain("redirect-chain");
   });
 
   it("creates a valid markdown report", async () => {

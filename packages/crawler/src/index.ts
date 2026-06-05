@@ -132,7 +132,7 @@ async function fetchPageSnapshot(
   options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<PageSnapshot> {
   const started = Date.now();
-  const response = await fetchWithTimeout(url, options);
+  const { response, redirectChain } = await fetchWithTimeout(url, options);
   const contentType = response.headers.get("content-type") ?? "";
   const html = !contentType || contentType.includes("text/html") ? await response.text() : "";
   const $ = cheerio.load(html);
@@ -172,6 +172,7 @@ async function fetchPageSnapshot(
     canonical: $("link[rel='canonical']").attr("href")
       ? normalizeUrl($("link[rel='canonical']").attr("href")!, url)
       : undefined,
+    redirectChain: redirectChain.length > 1 ? redirectChain : [],
     h1: $("h1").map((_, element) => $(element).text().replace(/\s+/g, " ").trim()).get().filter(Boolean),
     headings: $("h1,h2,h3").map((_, element) => $(element).text().replace(/\s+/g, " ").trim()).get().filter(Boolean),
     internalLinks: unique(internalLinks),
@@ -238,7 +239,7 @@ async function fetchText(
   url: string,
   options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<string> {
-  const response = await fetchWithTimeout(url, options);
+  const { response } = await fetchWithTimeout(url, options);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.text();
 }
@@ -247,7 +248,7 @@ async function fetchWithTimeout(
   url: string,
   options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>,
   redirectsRemaining = 3
-): Promise<Response> {
+): Promise<{ response: Response; redirectChain: string[] }> {
   await assertSafeFetchUrl(url, options.allowPrivateNetwork);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
@@ -260,10 +261,15 @@ async function fetchWithTimeout(
     if (isRedirect(response.status) && redirectsRemaining > 0) {
       const location = response.headers.get("location");
       if (location) {
-        return fetchWithTimeout(normalizeUrl(location, url), options, redirectsRemaining - 1);
+        const nextUrl = normalizeUrl(location, url);
+        const redirected = await fetchWithTimeout(nextUrl, options, redirectsRemaining - 1);
+        return {
+          response: redirected.response,
+          redirectChain: [url, ...redirected.redirectChain]
+        };
       }
     }
-    return response;
+    return { response, redirectChain: [url] };
   } finally {
     clearTimeout(timeout);
   }
