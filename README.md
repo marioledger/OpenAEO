@@ -62,6 +62,8 @@ npm run dev
 
 Then open `http://localhost:3000`.
 
+The dashboard audit endpoint is intentionally conservative for hosted use: it limits request body size, caps crawl depth, and uses a shorter timeout. For trusted local fixtures, use the CLI `--allow-private-network` flag instead of exposing arbitrary URLs on a public deployment.
+
 ## Public Roadmap
 
 OpenAEO is early, but the direction is intentionally practical: help publishers stay useful and credited as AI search becomes the default discovery layer.

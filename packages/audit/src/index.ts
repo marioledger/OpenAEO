@@ -8,6 +8,14 @@ import {
   type GeneratedFix,
   type PageSnapshot
 } from "@openaeo/schemas";
+export {
+  HOSTED_AUDIT_DEFAULT_MAX_PAGES,
+  HOSTED_AUDIT_MAX_PAGES,
+  HOSTED_AUDIT_MAX_REQUEST_BYTES,
+  HOSTED_AUDIT_TIMEOUT_MS,
+  parseHostedAuditRequest,
+  type HostedAuditRequest
+} from "./hosted.js";
 
 export interface AuditOptions {
   projectName?: string;
