@@ -163,7 +163,7 @@ export function createSampleReport(): AuditReport {
         title: "Example Publisher Guide",
         description: "A practical guide for making useful pages easier to cite.",
         canonical: "https://example.com",
-        redirectChain: ["https://example.com", "https://www.example.com"],
+        redirectChain: ["https://www.example.com/", "https://example.com/"],
         h1: ["Example Publisher Guide"],
         headings: ["Example Publisher Guide", "Sources", "FAQ"],
         internalLinks: ["https://example.com/about"],
