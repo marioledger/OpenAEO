@@ -119,6 +119,19 @@ export function collectIssues(crawl: CrawlResult): AuditIssue[] {
   }
 
   for (const page of crawl.pages) {
+    if (page.redirectChain.length > 1) {
+      issues.push({
+        id: `redirect-chain-${hash(page.url)}`,
+        title: "Reduce redirect chains",
+        description: "Redirect chains add latency and make canonical source discovery less direct.",
+        category: "crawler",
+        severity: "low",
+        url: page.url,
+        evidence: [`Redirect chain: ${page.redirectChain.join(" -> ")}`],
+        recommendation: "Point internal links and canonical URLs at the final destination to avoid unnecessary hops."
+      });
+    }
+
     if (page.status >= 400) {
       issues.push({
         id: `bad-status-${hash(page.url)}`,

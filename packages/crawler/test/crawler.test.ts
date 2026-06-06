@@ -17,6 +17,12 @@ const server = createServer((request, response) => {
     response.end("# Fixture\n- /\n- /about\n");
     return;
   }
+  if (path === "/redirect") {
+    response.statusCode = 302;
+    response.setHeader("location", "/about");
+    response.end();
+    return;
+  }
   if (path === "/about") {
     response.end("<html><head><title>About</title></head><body><h1>About</h1></body></html>");
     return;
@@ -80,6 +86,11 @@ describe("crawlSite", () => {
     });
     const crawledPaths = result.pages.map((page) => new URL(page.url).pathname);
     expect(crawledPaths).toEqual(["/", "/about"]);
+  });
+
+  it("tracks redirect chains", async () => {
+    const result = await crawlSite(`${baseUrl}/redirect`, { maxPages: 1, allowPrivateNetwork: true });
+    expect(result.pages[0]?.redirectChain).toEqual([`${baseUrl}/redirect`, `${baseUrl}/about`]);
   });
 
   it("blocks private-network crawls unless explicitly allowed", async () => {

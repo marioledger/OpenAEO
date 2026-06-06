@@ -14,6 +14,10 @@
     {
       "url": "https://www.example.com/",
       "status": 200,
+      "redirectChain": [
+        "https://www.example.com/",
+        "https://example.com/"
+      ],
       "h1": [],
       "headings": [],
       "internalLinks": [],
@@ -95,6 +99,18 @@
         "llms-full.txt was not found"
       ],
       "recommendation": "Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides."
+    },
+    {
+      "id": "redirect-chain-w9nb14",
+      "title": "Reduce redirect chains",
+      "description": "Redirect chains add latency and make canonical source discovery less direct.",
+      "category": "crawler",
+      "severity": "low",
+      "url": "https://www.example.com/",
+      "evidence": [
+        "Redirect chain: https://www.example.com/ -> https://example.com/"
+      ],
+      "recommendation": "Point internal links and canonical URLs at the final destination to avoid unnecessary hops."
     },
     {
       "id": "missing-title-w9nb14",
