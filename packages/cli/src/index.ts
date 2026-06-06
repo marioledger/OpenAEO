@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { Command } from "commander";
 import { auditCrawl, generateMarkdownReport } from "@openaeo/audit";
 import { crawlSite } from "@openaeo/crawler";
+import { generateComparisonMarkdown, compareAuditReports, loadAuditReport } from "./report-comparison.js";
 import { generateStrategyMarkdown, runStrategyMonitor } from "@openaeo/strategy";
 
 interface AuditCommandOptions {
@@ -31,6 +32,12 @@ interface MonitorCommandOptions {
   openaiApiKey?: string;
   model?: string;
   allowPrivateNetwork: boolean;
+}
+
+interface CompareCommandOptions {
+  out: string;
+  json: boolean;
+  markdown: boolean;
 }
 
 const program = new Command();
@@ -141,6 +148,41 @@ program
     console.log(`Strategy signals: ${brief.signals.length}`);
     console.log(`Items scanned: ${brief.items.length}`);
     console.log(`Mode: ${brief.mode}`);
+    console.log(`Reports: ${options.json ? jsonPath : ""}${options.json && options.markdown ? ", " : ""}${options.markdown ? markdownPath : ""}`);
+    console.log(`Completed in ${Date.now() - started}ms`);
+  });
+
+program
+  .command("compare")
+  .description("Compare two audit report JSON files and summarize score, issue, and signal changes.")
+  .argument("<baseline>", "Baseline audit report JSON file")
+  .argument("<current>", "Current audit report JSON file")
+  .option("--out <directory>", "Directory for comparison artifacts", "reports")
+  .option("--json", "Write JSON comparison", true)
+  .option("--markdown", "Write Markdown comparison", true)
+  .action(async (baselinePath: string, currentPath: string, options: CompareCommandOptions) => {
+    const started = Date.now();
+    const baseline = await loadAuditReport(baselinePath);
+    const current = await loadAuditReport(currentPath);
+    const comparison = compareAuditReports(baseline, current);
+    const outDir = resolve(options.out);
+    await mkdir(outDir, { recursive: true });
+    const jsonPath = resolve(outDir, "openaeo-report-comparison.json");
+    const markdownPath = resolve(outDir, "openaeo-report-comparison.md");
+
+    if (options.json) {
+      await writeFile(jsonPath, `${JSON.stringify(comparison, null, 2)}\n`, "utf8");
+    }
+    if (options.markdown) {
+      await writeFile(markdownPath, generateComparisonMarkdown(comparison), "utf8");
+    }
+
+    console.log(`OpenAEO comparison: ${baseline.projectName} -> ${current.projectName}`);
+    console.log(`Score delta: ${comparison.scoreDelta > 0 ? "+" : ""}${comparison.scoreDelta}`);
+    console.log(
+      `Issues: ${comparison.issueComparison.newIssues.length} new, ${comparison.issueComparison.resolvedIssues.length} resolved, ${comparison.issueComparison.unchangedIssues.length} unchanged`
+    );
+    console.log(`Signal changes: ${comparison.signalChanges.length}`);
     console.log(`Reports: ${options.json ? jsonPath : ""}${options.json && options.markdown ? ", " : ""}${options.markdown ? markdownPath : ""}`);
     console.log(`Completed in ${Date.now() - started}ms`);
   });

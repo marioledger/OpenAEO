@@ -64,6 +64,14 @@ OPENAI_API_KEY=sk-... npm exec openaeo -- monitor \
   --out reports
 ```
 
+Compare two audit reports:
+
+```bash
+npm exec openaeo -- compare reports/baseline/openaeo-report.json reports/current/openaeo-report.json --out reports/compare
+```
+
+The comparison command highlights score movement, category deltas, new and resolved issues, unchanged issues, and changed source signals.
+
 Start the dashboard:
 
 ```bash
@@ -91,7 +99,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 
 ### v0.2 - Better Publisher Workflows
 
-- [ ] Add report comparison between audit runs
+- [x] Add report comparison between audit runs
 - [x] Add more schema templates for Article, FAQPage, Product, Organization, SoftwareApplication, and Dataset
 - [ ] Add broken-link and redirect-chain reporting
 - [ ] Add configurable crawl budgets
