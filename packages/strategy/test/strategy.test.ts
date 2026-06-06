@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { createStrategyBrief, detectStrategySignals, generateStrategyMarkdown } from "../src/index.js";
+import { createServer } from "node:http";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { StrategyItem } from "@openaeo/schemas";
+import { createStrategyBrief, detectStrategySignals, generateStrategyMarkdown, runStrategyMonitor } from "../src/index.js";
 
 const items: StrategyItem[] = [
   {
@@ -22,6 +23,45 @@ const items: StrategyItem[] = [
   }
 ];
 
+let baseUrl = "";
+const server = createServer((request, response) => {
+  if (request.url === "/feed.xml") {
+    response.setHeader("content-type", "application/rss+xml");
+    response.end(`<?xml version="1.0"?>
+      <rss version="2.0">
+        <channel>
+          <title>Publisher AI updates</title>
+          <item>
+            <title>Citation update</title>
+            <link>https://example.com/citations</link>
+            <pubDate>not-a-real-date</pubDate>
+            <description>Publisher citation guidance changed.</description>
+          </item>
+        </channel>
+      </rss>`);
+    return;
+  }
+
+  response.statusCode = 404;
+  response.end("not found");
+});
+
+beforeAll(async () => {
+  await new Promise<void>((resolve) => {
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      if (address && typeof address === "object") {
+        baseUrl = `http://127.0.0.1:${address.port}`;
+      }
+      resolve();
+    });
+  });
+});
+
+afterAll(async () => {
+  await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+});
+
 describe("strategy monitor", () => {
   it("detects immediate strategy signals from monitored items", () => {
     const signals = detectStrategySignals(items);
@@ -39,5 +79,20 @@ describe("strategy monitor", () => {
     expect(brief.mode).toBe("mock");
     expect(brief.immediateActions.length).toBeGreaterThan(0);
     expect(generateStrategyMarkdown(brief)).toContain("# OpenAEO Strategy Brief");
+  });
+});
+
+describe("runStrategyMonitor", () => {
+  it("ignores malformed feed dates instead of throwing", async () => {
+    const brief = await runStrategyMonitor({
+      siteUrl: "https://publisher.example",
+      feedUrls: [`${baseUrl}/feed.xml`],
+      mockAi: true,
+      allowPrivateNetwork: true
+    });
+
+    expect(brief.items).toHaveLength(1);
+    expect(brief.items[0]?.publishedAt).toBeUndefined();
+    expect(brief.signals.map((signal) => signal.id)).toContain("citation-attribution");
   });
 });

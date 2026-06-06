@@ -201,18 +201,24 @@ function parseFeed(xml: string, sourceUrl: string): StrategyItem[] {
         sourceUrl
     );
     const summary = decodeEntities(stripTags(readFirstTag(block, ["description", "summary", "content"]) || ""));
-    const publishedAt = readFirstTag(block, ["pubDate", "published", "updated"]);
+    const publishedAt = parseOptionalDate(readFirstTag(block, ["pubDate", "published", "updated"]));
     const matchedTerms = matchTerms(`${title} ${summary}`);
     return {
       id: createStableId(`${sourceUrl}:${url}:${title}`),
       title,
       url,
       source: sourceUrl,
-      publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
+      publishedAt,
       summary,
       matchedTerms
     };
   });
+}
+
+function parseOptionalDate(rawValue: string | undefined): string | undefined {
+  if (!rawValue) return undefined;
+  const parsed = new Date(rawValue);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
 function readFirstTag(block: string, tags: string[]): string | undefined {
