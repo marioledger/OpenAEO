@@ -10,7 +10,9 @@ Supported version: `0.1.x` during early development.
 
 ## Hosted Crawling Guidance
 
-OpenAEO blocks private and local network targets by default in the crawler. Hosted deployments should also add response-size limits, per-user rate limits, authentication, audit logging, and egress monitoring before accepting arbitrary URLs from the public internet.
+OpenAEO blocks private and local network targets by default in the crawler. The hosted dashboard audit route also rejects oversized request bodies, caps the crawl budget, and uses a shorter crawl timeout for public input.
+
+Use the CLI with `--allow-private-network` only for trusted local fixtures or internal test environments. For any public hosted deployment, add per-user rate limits, authentication, audit logging, and egress monitoring before accepting arbitrary URLs from the internet.
 
 ## Current Dependency Advisory
 
