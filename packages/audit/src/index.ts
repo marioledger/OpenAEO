@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import type { CrawlResult } from "@openaeo/crawler";
 import {
   auditReportSchema,
+  createSchemaTemplates,
   type AiAnalysis,
   type AuditIssue,
   type AuditReport,
@@ -204,25 +205,16 @@ export function generateFixes(crawl: CrawlResult, issues: AuditIssue[]): Generat
   }
 
   if (hasIssue("missing-schema")) {
-    fixes.push({
-      id: "article-schema-template",
-      title: "Article JSON-LD template",
-      target: "<head> application/ld+json",
-      body: JSON.stringify(
-        {
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: crawl.pages[0]?.title ?? "Page title",
-          url: crawl.pages[0]?.canonical ?? crawl.pages[0]?.url ?? origin,
-          author: { "@type": "Organization", name: "Publisher name" },
-          publisher: { "@type": "Organization", name: "Publisher name" },
-          dateModified: new Date().toISOString().slice(0, 10)
-        },
-        null,
-        2
-      ),
-      rationale: "Structured data helps AI systems identify authorship, canonical URLs, freshness, and page type."
-    });
+    const templates = dedupeByType(crawl.pages.flatMap((page) => createSchemaTemplates(page)));
+    for (const template of templates) {
+      fixes.push({
+        id: `${template.type.toLowerCase()}-schema-template`,
+        title: template.title,
+        target: "<head> application/ld+json",
+        body: JSON.stringify(template.jsonLd, null, 2),
+        rationale: template.rationale
+      });
+    }
   }
 
   if (hasIssue("missing-citations")) {
@@ -362,6 +354,15 @@ ${fixLines}
 - No ranking manipulation: ${report.ethics.noRankingManipulation ? "yes" : "no"}
 - Attribution first: ${report.ethics.attributionFirst ? "yes" : "no"}
 `;
+}
+
+function dedupeByType<T extends { type: string }>(templates: T[]): T[] {
+  const seen = new Set<string>();
+  return templates.filter((template) => {
+    if (seen.has(template.type)) return false;
+    seen.add(template.type);
+    return true;
+  });
 }
 
 function scoreCategories(pages: PageSnapshot[], hasLlmsTxt: boolean, issues: AuditIssue[]): AuditReport["categoryScores"] {
