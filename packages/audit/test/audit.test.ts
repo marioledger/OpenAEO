@@ -20,7 +20,7 @@ const crawl: CrawlResult = {
       title: "Example Source",
       description: "Short",
       canonical: "https://example.com",
-      redirectChain: ["https://example.com", "https://www.example.com"],
+      redirectChain: ["https://www.example.com/", "https://example.com/"],
       h1: ["Example Source"],
       headings: ["Example Source"],
       internalLinks: [],
