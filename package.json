@@ -36,7 +36,7 @@
     "audit:fixture": "tsx packages/cli/src/index.ts audit http://127.0.0.1:4173 --max-pages 5 --out reports --mock-ai --allow-private-network"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
