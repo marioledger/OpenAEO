@@ -44,6 +44,23 @@ export const pageSnapshotSchema = z.object({
   fetchMs: z.number().int().nonnegative().default(0)
 });
 
+export const schemaTemplateTypeSchema = z.enum([
+  "Article",
+  "FAQPage",
+  "Product",
+  "Organization",
+  "SoftwareApplication",
+  "Dataset",
+  "WebPage"
+]);
+
+export const schemaTemplateSchema = z.object({
+  type: schemaTemplateTypeSchema,
+  title: z.string(),
+  rationale: z.string(),
+  jsonLd: z.record(z.string(), z.unknown())
+});
+
 export const siteSignalsSchema = z.object({
   robotsTxt: z.object({
     found: z.boolean(),
@@ -136,6 +153,8 @@ export type IssueCategory = z.infer<typeof issueCategorySchema>;
 export type AuditIssue = z.infer<typeof auditIssueSchema>;
 export type GeneratedFix = z.infer<typeof generatedFixSchema>;
 export type PageSnapshot = z.infer<typeof pageSnapshotSchema>;
+export type SchemaTemplateType = z.infer<typeof schemaTemplateTypeSchema>;
+export type SchemaTemplate = z.infer<typeof schemaTemplateSchema>;
 export type SiteSignals = z.infer<typeof siteSignalsSchema>;
 export type AiAnalysis = z.infer<typeof aiAnalysisSchema>;
 export type AuditReport = z.infer<typeof auditReportSchema>;
@@ -230,4 +249,176 @@ export function createSampleReport(): AuditReport {
       attributionFirst: true
     }
   };
+}
+
+export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
+  const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);
+  const detectionText = [
+    page.title,
+    page.description,
+    page.h1.join(" "),
+    page.headings.join(" "),
+    ...Object.values(page.openGraph)
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const pathname = safeUrlPath(page.url);
+
+  if (pathname === "/" || pathname === "") {
+    pageTypeSet.add("Organization");
+  }
+
+  if (page.answerBlockCount > 0 || /\bfaq\b|\bquestions?\b/.test(detectionText)) {
+    pageTypeSet.add("FAQPage");
+  }
+
+  if (page.title && page.description && (page.hasAuthor || page.hasPublishedDate || page.hasModifiedDate || page.citationCount > 0)) {
+    pageTypeSet.add("Article");
+  }
+
+  if (/\b(product|pricing|price|plan|shop|buy|checkout|cart)\b/.test(detectionText)) {
+    pageTypeSet.add("Product");
+  }
+
+  if (/\b(software|application|app|tool|dashboard|platform|api|library)\b/.test(detectionText)) {
+    pageTypeSet.add("SoftwareApplication");
+  }
+
+  if (/\b(dataset|data|download|csv|report|metrics|statistics)\b/.test(detectionText)) {
+    pageTypeSet.add("Dataset");
+  }
+
+  return [...pageTypeSet].map((type) => buildSchemaTemplate(type, page));
+}
+
+function buildSchemaTemplate(type: SchemaTemplateType, page: PageSnapshot): SchemaTemplate {
+  const canonical = page.canonical ?? page.url;
+  const origin = new URL(page.url).origin;
+
+  switch (type) {
+    case "Article":
+      return {
+        type,
+        title: "Article JSON-LD template",
+        rationale: "Article markup helps answer engines recognize authorship, canonical URLs, and freshness signals.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: page.title ?? "Page title",
+          url: canonical,
+          description: page.description ?? "Article summary",
+          author: { "@type": "Organization", name: "Publisher name" },
+          publisher: { "@type": "Organization", name: "Publisher name" },
+          dateModified: "YYYY-MM-DD"
+        }
+      };
+    case "FAQPage":
+      return {
+        type,
+        title: "FAQPage JSON-LD template",
+        rationale: "FAQ markup turns answer blocks into explicit question-and-answer structure for crawlers.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "Question goes here",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Answer goes here."
+              }
+            }
+          ]
+        }
+      };
+    case "Product":
+      return {
+        type,
+        title: "Product JSON-LD template",
+        rationale: "Product markup helps answer engines classify commerce pages and surface pricing or availability context.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: page.title ?? "Product name",
+          description: page.description ?? "Product description",
+          brand: { "@type": "Organization", name: "Brand name" },
+          offers: {
+            "@type": "Offer",
+            price: "0.00",
+            priceCurrency: "USD",
+            availability: "https://schema.org/InStock"
+          }
+        }
+      };
+    case "Organization":
+      return {
+        type,
+        title: "Organization JSON-LD template",
+        rationale: "Organization markup reinforces the publisher identity behind the source material.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: page.title ?? new URL(page.url).hostname,
+          url: origin,
+          logo: `${origin}/logo.png`
+        }
+      };
+    case "SoftwareApplication":
+      return {
+        type,
+        title: "SoftwareApplication JSON-LD template",
+        rationale: "SoftwareApplication markup fits tools, dashboards, and product-led pages with usage context.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: page.title ?? "Software name",
+          description: page.description ?? "Software description",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "USD"
+          }
+        }
+      };
+    case "Dataset":
+      return {
+        type,
+        title: "Dataset JSON-LD template",
+        rationale: "Dataset markup is useful for reports, downloads, and structured data releases that should be cited directly.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "Dataset",
+          name: page.title ?? "Dataset name",
+          description: page.description ?? "Dataset description",
+          url: canonical,
+          license: "https://creativecommons.org/licenses/by/4.0/"
+        }
+      };
+    case "WebPage":
+    default:
+      return {
+        type: "WebPage",
+        title: "WebPage JSON-LD template",
+        rationale: "WebPage markup provides a general-purpose schema baseline for any page that does not fit a narrower type.",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: page.title ?? "Page title",
+          url: canonical,
+          description: page.description ?? "Page description"
+        }
+      };
+  }
+}
+
+function safeUrlPath(rawUrl: string): string {
+  try {
+    return new URL(rawUrl).pathname;
+  } catch {
+    return "";
+  }
 }

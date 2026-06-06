@@ -90,7 +90,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 ### v0.2 - Better Publisher Workflows
 
 - [ ] Add report comparison between audit runs
-- [ ] Add more schema templates for Article, FAQPage, Product, Organization, SoftwareApplication, and Dataset
+- [x] Add more schema templates for Article, FAQPage, Product, Organization, SoftwareApplication, and Dataset
 - [ ] Add broken-link and redirect-chain reporting
 - [ ] Add configurable crawl budgets
 - [x] Add URL include/exclude crawl patterns
