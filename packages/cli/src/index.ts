@@ -16,6 +16,7 @@ interface AuditCommandOptions {
   openaiApiKey?: string;
   model?: string;
   projectName?: string;
+  generatedAt?: string;
   allowPrivateNetwork: boolean;
   include: string[];
   exclude: string[];
@@ -58,6 +59,7 @@ program
   .option("--openai-api-key <key>", "OpenAI API key for analysis; defaults to OPENAI_API_KEY")
   .option("--model <model>", "OpenAI model for analysis", "gpt-5-mini")
   .option("--project-name <name>", "Readable project name for report output")
+  .option("--generated-at <timestamp>", "Override report generatedAt for reproducible fixture output")
   .option("--allow-private-network", "Allow localhost/private-network targets for trusted local fixtures", false)
   .option("--include <pattern>", "Only crawl URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns", collectRepeatable, [])
   .option("--exclude <pattern>", "Skip URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns", collectRepeatable, [])
@@ -79,7 +81,8 @@ program
       projectName: options.projectName,
       mockAi: options.mockAi || !openAiApiKey,
       openAiApiKey,
-      model: options.model
+      model: options.model,
+      generatedAt: options.generatedAt
     });
     const outDir = resolve(options.out);
     await mkdir(outDir, { recursive: true });
