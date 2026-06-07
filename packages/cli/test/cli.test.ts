@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execa } from "execa";
@@ -72,6 +72,35 @@ describe("openaeo cli", () => {
     }
   });
 
+  it("supports disabling Markdown audit output", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "openaeo-audit-json-"));
+    try {
+      const result = await execa(
+        "tsx",
+        [
+          "packages/cli/src/index.ts",
+          "audit",
+          baseUrl,
+          "--out",
+          outDir,
+          "--max-pages",
+          "2",
+          "--mock-ai",
+          "--allow-private-network",
+          "--no-markdown"
+        ],
+        {
+          cwd: process.cwd()
+        }
+      );
+      expect(result.stdout).toContain("Reports:");
+      expect(await readFile(join(outDir, "openaeo-report.json"), "utf8")).toContain("\"score\"");
+      await expect(access(join(outDir, "openaeo-report.md"))).rejects.toThrow();
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
   it("passes include and exclude crawl filters to audit reports", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "openaeo-filtered-"));
     try {
@@ -123,6 +152,36 @@ describe("openaeo cli", () => {
       expect(result.stdout).toContain("Strategy signals:");
       expect(await readFile(join(outDir, "openaeo-strategy.json"), "utf8")).toContain("\"signals\"");
       expect(await readFile(join(outDir, "openaeo-strategy.md"), "utf8")).toContain("# OpenAEO Strategy Brief");
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
+  it("supports disabling JSON strategy output", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "openaeo-strategy-md-"));
+    try {
+      const result = await execa(
+        "tsx",
+        [
+          "packages/cli/src/index.ts",
+          "monitor",
+          "--site",
+          "https://publisher.example",
+          "--feed",
+          `${baseUrl}/feed.xml`,
+          "--out",
+          outDir,
+          "--mock-ai",
+          "--allow-private-network",
+          "--no-json"
+        ],
+        {
+          cwd: process.cwd()
+        }
+      );
+      expect(result.stdout).toContain("Reports:");
+      expect(await readFile(join(outDir, "openaeo-strategy.md"), "utf8")).toContain("# OpenAEO Strategy Brief");
+      await expect(access(join(outDir, "openaeo-strategy.json"))).rejects.toThrow();
     } finally {
       await rm(outDir, { recursive: true, force: true });
     }
