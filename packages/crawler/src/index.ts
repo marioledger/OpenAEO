@@ -8,6 +8,8 @@ export interface CrawlOptions {
   timeoutMs?: number;
   userAgent?: string;
   allowPrivateNetwork?: boolean;
+  includePatterns?: string[];
+  excludePatterns?: string[];
 }
 
 export interface CrawlResult {
@@ -28,6 +30,7 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
   const timeoutMs = options.timeoutMs ?? 10_000;
   const userAgent = options.userAgent ?? DEFAULT_USER_AGENT;
   const allowPrivateNetwork = options.allowPrivateNetwork ?? false;
+  const shouldCrawl = createUrlFilter(options.includePatterns ?? [], options.excludePatterns ?? []);
   const errors: string[] = [];
   const blockedUrls: string[] = [];
 
@@ -38,7 +41,7 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
   const robotsRules = parseRobotsTxt(robotsText ?? "");
   const siteSignals = await discoverSiteSignals(origin, robotsText, { timeoutMs, userAgent, allowPrivateNetwork });
 
-  const sitemapQueue = siteSignals.sitemap.discoveredUrls.filter((url) => sameOrigin(url, origin));
+  const sitemapQueue = siteSignals.sitemap.discoveredUrls.filter((url) => sameOrigin(url, origin) && shouldCrawl(url));
   const queue = unique([normalizedStart, ...sitemapQueue]).slice(0, Math.max(maxPages * 2, maxPages));
   const visited = new Set<string>();
   const pages: PageSnapshot[] = [];
@@ -57,7 +60,7 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
       const page = await fetchPageSnapshot(nextUrl, { timeoutMs, userAgent, allowPrivateNetwork });
       pages.push(page);
       for (const link of page.internalLinks) {
-        if (!visited.has(link) && queue.length < maxPages * 3) {
+        if (!visited.has(link) && shouldCrawl(link) && queue.length < maxPages * 3) {
           queue.push(link);
         }
       }
@@ -129,7 +132,7 @@ async function fetchPageSnapshot(
   options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<PageSnapshot> {
   const started = Date.now();
-  const response = await fetchWithTimeout(url, options);
+  const { response, redirectChain } = await fetchWithTimeout(url, options);
   const contentType = response.headers.get("content-type") ?? "";
   const html = !contentType || contentType.includes("text/html") ? await response.text() : "";
   const $ = cheerio.load(html);
@@ -169,6 +172,7 @@ async function fetchPageSnapshot(
     canonical: $("link[rel='canonical']").attr("href")
       ? normalizeUrl($("link[rel='canonical']").attr("href")!, url)
       : undefined,
+    redirectChain: redirectChain.length > 1 ? redirectChain : [],
     h1: $("h1").map((_, element) => $(element).text().replace(/\s+/g, " ").trim()).get().filter(Boolean),
     headings: $("h1,h2,h3").map((_, element) => $(element).text().replace(/\s+/g, " ").trim()).get().filter(Boolean),
     internalLinks: unique(internalLinks),
@@ -235,7 +239,7 @@ async function fetchText(
   url: string,
   options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
 ): Promise<string> {
-  const response = await fetchWithTimeout(url, options);
+  const { response } = await fetchWithTimeout(url, options);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.text();
 }
@@ -244,7 +248,7 @@ async function fetchWithTimeout(
   url: string,
   options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>,
   redirectsRemaining = 3
-): Promise<Response> {
+): Promise<{ response: Response; redirectChain: string[] }> {
   await assertSafeFetchUrl(url, options.allowPrivateNetwork);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
@@ -257,10 +261,15 @@ async function fetchWithTimeout(
     if (isRedirect(response.status) && redirectsRemaining > 0) {
       const location = response.headers.get("location");
       if (location) {
-        return fetchWithTimeout(normalizeUrl(location, url), options, redirectsRemaining - 1);
+        const nextUrl = normalizeUrl(location, url);
+        const redirected = await fetchWithTimeout(nextUrl, options, redirectsRemaining - 1);
+        return {
+          response: redirected.response,
+          redirectChain: [url, ...redirected.redirectChain]
+        };
       }
     }
-    return response;
+    return { response, redirectChain: [url] };
   } finally {
     clearTimeout(timeout);
   }
@@ -340,6 +349,61 @@ function parseSitemapUrls(xml: string): string[] {
 
 function sameOrigin(url: string, origin: string): boolean {
   return new URL(url).origin === origin;
+}
+
+function createUrlFilter(includePatterns: string[], excludePatterns: string[]): (url: string) => boolean {
+  const includes = includePatterns.map(normalizePattern);
+  const excludes = excludePatterns.map(normalizePattern);
+  return (url) => {
+    const candidate = urlFilterCandidate(url);
+    const included = includes.length === 0 || includes.some((pattern) => matchesPattern(candidate, pattern));
+    const excluded = excludes.some((pattern) => matchesPattern(candidate, pattern));
+    return included && !excluded;
+  };
+}
+
+function normalizePattern(pattern: string): string {
+  const trimmed = pattern.trim();
+  return trimmed;
+}
+
+function matchesPattern(candidate: string, pattern: string): boolean {
+  if (pattern === "") return true;
+  if (!pattern.includes("*")) return candidate === pattern;
+  if (pattern === "*") return true;
+
+  const parts = pattern.split("*");
+  let position = 0;
+  let startIndex = 0;
+  let endIndex = parts.length - 1;
+
+  if (!pattern.startsWith("*")) {
+    const prefix = parts[0] ?? "";
+    if (!candidate.startsWith(prefix)) return false;
+    position = prefix.length;
+    startIndex = 1;
+  }
+
+  if (!pattern.endsWith("*")) {
+    const suffix = parts[endIndex] ?? "";
+    if (!candidate.endsWith(suffix)) return false;
+    endIndex -= 1;
+  }
+
+  for (let index = startIndex; index <= endIndex; index += 1) {
+    const segment = parts[index];
+    if (!segment) continue;
+    const found = candidate.indexOf(segment, position);
+    if (found === -1) return false;
+    position = found + segment.length;
+  }
+
+  return true;
+}
+
+function urlFilterCandidate(url: string): string {
+  const parsed = new URL(url);
+  return `${parsed.pathname}${parsed.search}`;
 }
 
 function unique<T>(items: T[]): T[] {

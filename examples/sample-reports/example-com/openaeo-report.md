@@ -28,6 +28,8 @@ The site has crawlable content but needs a clearer AI source map and attribution
   Publish llms.txt with canonical source pages, update cadence, and citation preferences.
 - **INFO / geo**: Consider llms-full.txt for deep source context (https://www.example.com/llms-full.txt)
   Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides.
+- **LOW / crawler**: Reduce redirect chains (https://www.example.com/)
+  Point internal links and canonical URLs at the final destination to avoid unnecessary hops.
 - **MEDIUM / seo**: Add a descriptive title (https://www.example.com/)
   Write a clear title that names the entity, topic, and page purpose.
 - **LOW / seo**: Strengthen the meta description (https://www.example.com/)

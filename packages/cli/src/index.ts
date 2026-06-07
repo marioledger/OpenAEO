@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { Command } from "commander";
 import { auditCrawl, generateMarkdownReport } from "@openaeo/audit";
 import { crawlSite } from "@openaeo/crawler";
+import { generateComparisonMarkdown, compareAuditReports, loadAuditReport } from "./report-comparison.js";
 import { generateStrategyMarkdown, runStrategyMonitor } from "@openaeo/strategy";
 
 interface AuditCommandOptions {
@@ -16,6 +17,8 @@ interface AuditCommandOptions {
   model?: string;
   projectName?: string;
   allowPrivateNetwork: boolean;
+  include: string[];
+  exclude: string[];
 }
 
 interface MonitorCommandOptions {
@@ -29,6 +32,12 @@ interface MonitorCommandOptions {
   openaiApiKey?: string;
   model?: string;
   allowPrivateNetwork: boolean;
+}
+
+interface CompareCommandOptions {
+  out: string;
+  json: boolean;
+  markdown: boolean;
 }
 
 const program = new Command();
@@ -50,6 +59,8 @@ program
   .option("--model <model>", "OpenAI model for analysis", "gpt-5-mini")
   .option("--project-name <name>", "Readable project name for report output")
   .option("--allow-private-network", "Allow localhost/private-network targets for trusted local fixtures", false)
+  .option("--include <pattern>", "Only crawl URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns", collectRepeatable, [])
+  .option("--exclude <pattern>", "Skip URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns", collectRepeatable, [])
   .action(async (url: string, options: AuditCommandOptions) => {
     const started = Date.now();
     const maxPages = Number.parseInt(options.maxPages, 10);
@@ -58,7 +69,12 @@ program
     }
 
     const openAiApiKey = options.openaiApiKey ?? process.env.OPENAI_API_KEY;
-    const crawl = await crawlSite(url, { maxPages, allowPrivateNetwork: options.allowPrivateNetwork });
+    const crawl = await crawlSite(url, {
+      maxPages,
+      allowPrivateNetwork: options.allowPrivateNetwork,
+      includePatterns: options.include,
+      excludePatterns: options.exclude
+    });
     const report = await auditCrawl(crawl, {
       projectName: options.projectName,
       mockAi: options.mockAi || !openAiApiKey,
@@ -88,7 +104,7 @@ program
   .command("monitor")
   .description("Scan news/RSS/Atom feeds for AI-search strategy changes and generate an action brief.")
   .requiredOption("--site <url>", "Website URL the strategy brief is for")
-  .option("--feed <url>", "RSS or Atom feed URL to scan; repeat for multiple feeds", collectFeed, [])
+  .option("--feed <url>", "RSS or Atom feed URL to scan; repeat for multiple feeds", collectRepeatable, [])
   .option("--max-items <number>", "Maximum feed items to analyze", "20")
   .option("--out <directory>", "Directory for strategy artifacts", "reports")
   .option("--no-json", "Skip JSON strategy brief output")
@@ -136,7 +152,42 @@ program
     console.log(`Completed in ${Date.now() - started}ms`);
   });
 
-function collectFeed(value: string, previous: string[]): string[] {
+program
+  .command("compare")
+  .description("Compare two audit report JSON files and summarize score, issue, and signal changes.")
+  .argument("<baseline>", "Baseline audit report JSON file")
+  .argument("<current>", "Current audit report JSON file")
+  .option("--out <directory>", "Directory for comparison artifacts", "reports")
+  .option("--json", "Write JSON comparison", true)
+  .option("--markdown", "Write Markdown comparison", true)
+  .action(async (baselinePath: string, currentPath: string, options: CompareCommandOptions) => {
+    const started = Date.now();
+    const baseline = await loadAuditReport(baselinePath);
+    const current = await loadAuditReport(currentPath);
+    const comparison = compareAuditReports(baseline, current);
+    const outDir = resolve(options.out);
+    await mkdir(outDir, { recursive: true });
+    const jsonPath = resolve(outDir, "openaeo-report-comparison.json");
+    const markdownPath = resolve(outDir, "openaeo-report-comparison.md");
+
+    if (options.json) {
+      await writeFile(jsonPath, `${JSON.stringify(comparison, null, 2)}\n`, "utf8");
+    }
+    if (options.markdown) {
+      await writeFile(markdownPath, generateComparisonMarkdown(comparison), "utf8");
+    }
+
+    console.log(`OpenAEO comparison: ${baseline.projectName} -> ${current.projectName}`);
+    console.log(`Score delta: ${comparison.scoreDelta > 0 ? "+" : ""}${comparison.scoreDelta}`);
+    console.log(
+      `Issues: ${comparison.issueComparison.newIssues.length} new, ${comparison.issueComparison.resolvedIssues.length} resolved, ${comparison.issueComparison.unchangedIssues.length} unchanged`
+    );
+    console.log(`Signal changes: ${comparison.signalChanges.length}`);
+    console.log(`Reports: ${options.json ? jsonPath : ""}${options.json && options.markdown ? ", " : ""}${options.markdown ? markdownPath : ""}`);
+    console.log(`Completed in ${Date.now() - started}ms`);
+  });
+
+function collectRepeatable(value: string, previous: string[]): string[] {
   return [...previous, value];
 }
 

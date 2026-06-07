@@ -1,10 +1,10 @@
 import { createServer } from "node:http";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { access } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execa } from "execa";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createSampleReport } from "@openaeo/schemas";
 
 let baseUrl = "";
 const server = createServer((request, response) => {
@@ -13,7 +13,7 @@ const server = createServer((request, response) => {
     return;
   }
   if (request.url === "/sitemap.xml") {
-    response.end(`<urlset><url><loc>${baseUrl}/</loc></url></urlset>`);
+    response.end(`<urlset><url><loc>${baseUrl}/</loc></url><url><loc>${baseUrl}/about</loc></url><url><loc>${baseUrl}/draft</loc></url></urlset>`);
     return;
   }
   if (request.url === "/feed.xml") {
@@ -32,7 +32,15 @@ const server = createServer((request, response) => {
       </rss>`);
     return;
   }
-  response.end(`<!doctype html><html><head><title>Fixture Publisher Page</title><meta name="description" content="A fixture page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/"></head><body><h1>Fixture Publisher Page</h1><p data-answer>Short answer.</p></body></html>`);
+  if (request.url === "/about") {
+    response.end(`<!doctype html><html><head><title>About Fixture Publisher</title><meta name="description" content="An about page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/about"></head><body><h1>About Fixture Publisher</h1><p data-answer>Short answer.</p></body></html>`);
+    return;
+  }
+  if (request.url === "/draft") {
+    response.end(`<!doctype html><html><head><title>Draft Fixture Publisher</title><meta name="description" content="A draft page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/draft"></head><body><h1>Draft Fixture Publisher</h1><p data-answer>Short answer.</p></body></html>`);
+    return;
+  }
+  response.end(`<!doctype html><html><head><title>Fixture Publisher Page</title><meta name="description" content="A fixture page with enough descriptive metadata for OpenAEO tests."><link rel="canonical" href="/"></head><body><h1>Fixture Publisher Page</h1><p data-answer>Short answer.</p><a href="/about">About</a><a href="/draft">Draft</a></body></html>`);
 });
 
 beforeAll(async () => {
@@ -93,6 +101,37 @@ describe("openaeo cli", () => {
     }
   });
 
+  it("passes include and exclude crawl filters to audit reports", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "openaeo-filtered-"));
+    try {
+      await execa("tsx", [
+        "packages/cli/src/index.ts",
+        "audit",
+        baseUrl,
+        "--out",
+        outDir,
+        "--max-pages",
+        "3",
+        "--mock-ai",
+        "--allow-private-network",
+        "--include",
+        "/ab*",
+        "--include",
+        "/dra*",
+        "--exclude",
+        "/dra*"
+      ], {
+        cwd: process.cwd()
+      });
+      const report = JSON.parse(await readFile(join(outDir, "openaeo-report.json"), "utf8")) as {
+        pages: { url: string }[];
+      };
+      expect(report.pages.map((page) => new URL(page.url).pathname)).toEqual(["/", "/about"]);
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
   it("writes JSON and Markdown strategy briefs", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "openaeo-strategy-"));
     try {
@@ -143,6 +182,110 @@ describe("openaeo cli", () => {
       expect(result.stdout).toContain("Reports:");
       expect(await readFile(join(outDir, "openaeo-strategy.md"), "utf8")).toContain("# OpenAEO Strategy Brief");
       await expect(access(join(outDir, "openaeo-strategy.json"))).rejects.toThrow();
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
+  });
+
+  it("compares two report JSON files and writes a comparison summary", async () => {
+    const outDir = await mkdtemp(join(tmpdir(), "openaeo-compare-"));
+    const baseline = {
+      ...createSampleReport(),
+      id: "baseline-report",
+      projectName: "Baseline Report",
+      score: 68,
+      categoryScores: {
+        seo: 74,
+        aeo: 63,
+        geo: 60,
+        trust: 71
+      },
+      issues: [
+        {
+          id: "missing-llms-txt",
+          title: "Add an llms.txt entry point",
+          description: "AI agents do not have a concise map of the site's best source material.",
+          category: "aeo",
+          severity: "medium",
+          url: "https://example.com/llms.txt",
+          evidence: ["GET /llms.txt returned 404"],
+          recommendation: "Publish an llms.txt file with canonical pages, update cadence, and citation preferences."
+        },
+        {
+          id: "missing-author",
+          title: "Expose author or publisher metadata",
+          description: "No author metadata was detected.",
+          category: "trust",
+          severity: "medium",
+          recommendation: "Add author/publisher metadata in visible content and structured data."
+        }
+      ]
+    };
+    const current = {
+      ...createSampleReport(),
+      id: "current-report",
+      projectName: "Current Report",
+      score: 76,
+      categoryScores: {
+        seo: 79,
+        aeo: 69,
+        geo: 66,
+        trust: 80
+      },
+      siteSignals: {
+        ...createSampleReport().siteSignals,
+        llmsTxt: {
+          found: true,
+          url: "https://example.com/llms.txt",
+          summary: "Source map now published."
+        },
+        sitemap: {
+          found: true,
+          url: "https://example.com/sitemap.xml",
+          discoveredUrls: ["https://example.com", "https://example.com/about", "https://example.com/contact"]
+        }
+      },
+      issues: [
+        {
+          id: "missing-author",
+          title: "Expose author or publisher metadata",
+          description: "No author metadata was detected.",
+          category: "trust",
+          severity: "medium",
+          recommendation: "Add author/publisher metadata in visible content and structured data."
+        },
+        {
+          id: "missing-citations",
+          title: "Add outbound citations for factual claims",
+          description: "No citation-like links or cite elements were detected.",
+          category: "geo",
+          severity: "medium",
+          recommendation: "Link important claims to primary sources, research, docs, or your own canonical evidence."
+        }
+      ]
+    };
+
+    try {
+      await writeFile(join(outDir, "baseline.json"), `${JSON.stringify(baseline, null, 2)}\n`, "utf8");
+      await writeFile(join(outDir, "current.json"), `${JSON.stringify(current, null, 2)}\n`, "utf8");
+
+      const result = await execa("tsx", [
+        "packages/cli/src/index.ts",
+        "compare",
+        join(outDir, "baseline.json"),
+        join(outDir, "current.json"),
+        "--out",
+        outDir
+      ], {
+        cwd: process.cwd()
+      });
+
+      expect(result.stdout).toContain("OpenAEO comparison: Baseline Report -> Current Report");
+      expect(result.stdout).toContain("Score delta: +8");
+      expect(result.stdout).toContain("Issues: 1 new, 1 resolved, 1 unchanged");
+      expect(result.stdout).toContain("Signal changes: 3");
+      expect(await readFile(join(outDir, "openaeo-report-comparison.json"), "utf8")).toContain("\"scoreDelta\": 8");
+      expect(await readFile(join(outDir, "openaeo-report-comparison.md"), "utf8")).toContain("# OpenAEO Report Comparison");
     } finally {
       await rm(outDir, { recursive: true, force: true });
     }

@@ -201,18 +201,24 @@ function parseFeed(xml: string, sourceUrl: string): StrategyItem[] {
         sourceUrl
     );
     const summary = decodeEntities(stripTags(readFirstTag(block, ["description", "summary", "content"]) || ""));
-    const publishedAt = readFirstTag(block, ["pubDate", "published", "updated"]);
+    const publishedAt = parseOptionalDate(readFirstTag(block, ["pubDate", "published", "updated"]));
     const matchedTerms = matchTerms(`${title} ${summary}`);
     return {
       id: createStableId(`${sourceUrl}:${url}:${title}`),
       title,
       url,
       source: sourceUrl,
-      publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
+      publishedAt,
       summary,
       matchedTerms
     };
   });
+}
+
+function parseOptionalDate(rawValue: string | undefined): string | undefined {
+  if (!rawValue) return undefined;
+  const parsed = new Date(rawValue);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
 function readFirstTag(block: string, tags: string[]): string | undefined {
@@ -317,7 +323,7 @@ async function assertSafeFetchUrl(rawUrl: string, allowPrivateNetwork: boolean):
   const addresses = isIP(hostname)
     ? [{ address: hostname }]
     : await lookup(hostname, { all: true, verbatim: true });
-  const blocked = addresses.find(({ address }) => isPrivateAddress(address));
+  const blocked = addresses.find(({ address }: { address: string }) => isPrivateAddress(address));
   if (blocked) {
     throw new Error(`Refusing to monitor private or local network address: ${hostname}`);
   }

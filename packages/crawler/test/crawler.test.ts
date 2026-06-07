@@ -10,15 +10,25 @@ const server = createServer((request, response) => {
     return;
   }
   if (path === "/sitemap.xml") {
-    response.end(`<urlset><url><loc>${baseUrl}/</loc></url><url><loc>${baseUrl}/about</loc></url></urlset>`);
+    response.end(`<urlset><url><loc>${baseUrl}/</loc></url><url><loc>${baseUrl}/about</loc></url><url><loc>${baseUrl}/draft</loc></url></urlset>`);
     return;
   }
   if (path === "/llms.txt") {
     response.end("# Fixture\n- /\n- /about\n");
     return;
   }
+  if (path === "/redirect") {
+    response.statusCode = 302;
+    response.setHeader("location", "/about");
+    response.end();
+    return;
+  }
   if (path === "/about") {
     response.end("<html><head><title>About</title></head><body><h1>About</h1></body></html>");
+    return;
+  }
+  if (path === "/draft") {
+    response.end("<html><head><title>Draft</title></head><body><h1>Draft</h1></body></html>");
     return;
   }
   response.end(`<!doctype html>
@@ -33,6 +43,7 @@ const server = createServer((request, response) => {
       <body>
         <h1>Fixture Site</h1>
         <a href="/about">About</a>
+        <a href="/draft">Draft</a>
         <a href="https://schema.org/Article">Schema</a>
       </body>
     </html>`);
@@ -64,6 +75,22 @@ describe("crawlSite", () => {
     expect(result.pages[0]?.schemaTypes).toContain("Article");
     expect(result.siteSignals.llmsTxt.found).toBe(true);
     expect(result.siteSignals.sitemap.discoveredUrls).toContain(`${baseUrl}/`);
+  });
+
+  it("applies include and exclude patterns to discovered URLs", async () => {
+    const result = await crawlSite(baseUrl, {
+      maxPages: 3,
+      allowPrivateNetwork: true,
+      includePatterns: ["/ab*", "/dra*"],
+      excludePatterns: ["/dra*"]
+    });
+    const crawledPaths = result.pages.map((page) => new URL(page.url).pathname);
+    expect(crawledPaths).toEqual(["/", "/about"]);
+  });
+
+  it("tracks redirect chains", async () => {
+    const result = await crawlSite(`${baseUrl}/redirect`, { maxPages: 1, allowPrivateNetwork: true });
+    expect(result.pages[0]?.redirectChain).toEqual([`${baseUrl}/redirect`, `${baseUrl}/about`]);
   });
 
   it("blocks private-network crawls unless explicitly allowed", async () => {
