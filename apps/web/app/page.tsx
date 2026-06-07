@@ -10,8 +10,8 @@ import {
   ExternalLink,
   FileText,
   Gauge,
-  Github,
   Globe2,
+  Code2,
   Layers3,
   Search,
   ShieldCheck,
@@ -104,7 +104,7 @@ export default function Dashboard() {
         </div>
 
         <a className="repoLink" href="https://github.com/marioledger/OpenAEO" target="_blank" rel="noreferrer">
-          <Github size={17} /> GitHub repo <ExternalLink size={14} />
+          <Code2 size={17} /> GitHub repo <ExternalLink size={14} />
         </a>
       </aside>
 
