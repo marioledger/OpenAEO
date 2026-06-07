@@ -73,6 +73,7 @@ describe("audit rules", () => {
     expect(report.fixes.some((fix) => fix.target === "/llms.txt")).toBe(true);
     expect(markdown).toContain("# OpenAEO Audit Report");
     expect(markdown).toContain("```json");
+    expect(markdown).toContain("```md");
   });
 
   it("keeps report metadata stable when a generatedAt override is provided", async () => {
@@ -80,6 +81,10 @@ describe("audit rules", () => {
     const second = await auditCrawl(crawl, { mockAi: true, generatedAt: "2026-06-07T14:06:22.231Z" });
     expect(first.generatedAt).toBe("2026-06-07T14:06:22.231Z");
     expect(first.id).toBe(second.id);
+  });
+
+  it("rejects invalid generatedAt overrides", async () => {
+    await expect(auditCrawl(crawl, { mockAi: true, generatedAt: "not-a-timestamp" })).rejects.toThrow("generatedAt");
   });
 
   it("generates typed schema templates from page signals", async () => {

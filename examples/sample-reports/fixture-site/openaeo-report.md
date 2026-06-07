@@ -125,7 +125,7 @@ Target: `Evidence-heavy sections`
 
 Clear sources make generated answers more verifiable and more likely to credit the publisher.
 
-```json
+```md
 ### Sources
 
 - [Primary source title](https://example.com/source) - why it supports this claim.

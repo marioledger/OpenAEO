@@ -38,6 +38,9 @@ export async function auditCrawl(crawl: CrawlResult, options: AuditOptions = {})
   );
   const projectName = options.projectName ?? new URL(crawl.startUrl).hostname;
   const generatedAt = options.generatedAt ?? new Date().toISOString();
+  if (options.generatedAt && !isValidISOTimestamp(options.generatedAt)) {
+    throw new Error(`Invalid generatedAt timestamp: ${options.generatedAt}. Expected ISO 8601 format.`);
+  }
   const reportWithoutAi = {
     id: `openaeo-${new URL(crawl.startUrl).hostname}-${hash(`${crawl.startUrl}:${projectName}:${generatedAt}`)}`,
     projectName,
@@ -341,7 +344,7 @@ export function generateMarkdownReport(report: AuditReport): string {
     ? report.issues.map((issue) => `- **${issue.severity.toUpperCase()} / ${issue.category}**: ${issue.title}${issue.url ? ` (${issue.url})` : ""}\n  ${issue.recommendation}`).join("\n")
     : "- No issues found.";
   const fixLines = report.fixes.length
-    ? report.fixes.map((fix) => `## ${fix.title}\n\nTarget: \`${fix.target}\`\n\n${fix.rationale}\n\n\`\`\`json\n${fix.body}\n\`\`\``).join("\n\n")
+    ? report.fixes.map((fix) => `## ${fix.title}\n\nTarget: \`${fix.target}\`\n\n${fix.rationale}\n\n${formatFixFence(fix)}\n${fix.body}\n\`\`\``).join("\n\n")
     : "No generated fixes required.";
 
   return `# OpenAEO Audit Report
@@ -387,6 +390,15 @@ function dedupeByType<T extends { type: string }>(templates: T[]): T[] {
     seen.add(template.type);
     return true;
   });
+}
+
+function formatFixFence(fix: GeneratedFix): string {
+  return fix.id.endsWith("-schema-template") ? "```json" : "```md";
+}
+
+function isValidISOTimestamp(timestamp: string): boolean {
+  const parsed = new Date(timestamp);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === timestamp;
 }
 
 function scoreCategories(pages: PageSnapshot[], hasLlmsTxt: boolean, issues: AuditIssue[]): AuditReport["categoryScores"] {
