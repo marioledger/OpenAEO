@@ -76,9 +76,12 @@ describe("strategy monitor", () => {
       items,
       mockAi: true
     });
+    const markdown = generateStrategyMarkdown(brief);
     expect(brief.mode).toBe("mock");
     expect(brief.immediateActions.length).toBeGreaterThan(0);
-    expect(generateStrategyMarkdown(brief)).toContain("# OpenAEO Strategy Brief");
+    expect(markdown).toContain("# OpenAEO Strategy Brief");
+    expect(markdown).toContain("Source items:");
+    expect(markdown).toContain("[AI search engines improve source citation for publishers](https://example.com/news/citations)");
   });
 });
 

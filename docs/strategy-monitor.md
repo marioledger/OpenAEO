@@ -38,6 +38,7 @@ Use `--mock-ai` for deterministic CI and local demo runs.
 - `openaeo-strategy.md`
 
 The Markdown brief includes a summary, prioritized signals, immediate actions, experiments, content updates, and source links.
+Each signal also lists the monitored items that triggered it so you can trace the brief back to specific feed entries.
 
 ## Safety Defaults
 
