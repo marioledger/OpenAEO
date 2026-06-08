@@ -16,7 +16,7 @@ These reports show how OpenAEO output looks against public sites and fixture sce
 Start the local fixture site before regenerating the fixture report:
 
 ```bash
-cd examples/fixtures/site && npx vite preview --port 4173 --strictPort
+npm run preview:fixture
 ```
 
 ```bash
