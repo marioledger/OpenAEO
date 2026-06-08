@@ -129,7 +129,23 @@ export function detectStrategySignals(items: StrategyItem[]): StrategySignal[] {
 
 export function generateStrategyMarkdown(brief: StrategyBrief): string {
   const signalLines = brief.signals.length
-    ? brief.signals.map((signal) => `- **${signal.urgency.toUpperCase()} / ${signal.topic}**: ${signal.action}`).join("\n")
+    ? brief.signals
+        .map((signal) => {
+          const sourceItems = signal.sourceItemIds
+            .map((itemId) => brief.items.find((item) => item.id === itemId))
+            .filter((item): item is StrategyItem => Boolean(item));
+          const sourceItemLines = sourceItems.length
+            ? ["  - Source items:", ...sourceItems.map((item) => `    - [${item.title}](${item.url})${item.publishedAt ? ` - ${item.publishedAt}` : ""}`)].join("\n")
+            : "";
+
+          return [
+            `- **${signal.urgency.toUpperCase()} / ${signal.topic}**: ${signal.action}`,
+            sourceItemLines
+          ]
+            .filter(Boolean)
+            .join("\n");
+        })
+        .join("\n")
     : "- No urgent AI-search strategy shifts detected.";
   const actionLines = brief.immediateActions.map((action) => `- ${action}`).join("\n");
   const experimentLines = brief.experiments.map((experiment) => `- ${experiment}`).join("\n");
