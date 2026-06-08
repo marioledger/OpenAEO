@@ -1,0 +1,259 @@
+{
+  "id": "openaeo-www.w3.org-tz03we",
+  "projectName": "W3C",
+  "auditedUrl": "https://www.w3.org/",
+  "generatedAt": "2026-06-08T00:00:00.000Z",
+  "score": 0,
+  "categoryScores": {
+    "seo": 0,
+    "aeo": 0,
+    "geo": 0,
+    "trust": 0
+  },
+  "pages": [
+    {
+      "url": "https://www.w3.org/",
+      "status": 200,
+      "redirectChain": [],
+      "h1": [],
+      "headings": [],
+      "internalLinks": [],
+      "externalLinks": [],
+      "schemaTypes": [],
+      "openGraph": {},
+      "hasAuthor": false,
+      "hasPublishedDate": false,
+      "hasModifiedDate": false,
+      "citationCount": 0,
+      "answerBlockCount": 0,
+      "wordCount": 157,
+      "fetchMs": 44
+    }
+  ],
+  "siteSignals": {
+    "robotsTxt": {
+      "found": true,
+      "url": "https://www.w3.org/robots.txt"
+    },
+    "sitemap": {
+      "found": false,
+      "discoveredUrls": []
+    },
+    "llmsTxt": {
+      "found": false,
+      "url": "https://www.w3.org/llms.txt"
+    },
+    "llmsFullTxt": {
+      "found": false,
+      "url": "https://www.w3.org/llms-full.txt"
+    }
+  },
+  "issues": [
+    {
+      "id": "missing-sitemap",
+      "title": "Publish a sitemap",
+      "description": "Answer engines and crawlers benefit from a canonical map of important pages.",
+      "category": "seo",
+      "severity": "medium",
+      "url": "https://www.w3.org/sitemap.xml",
+      "evidence": [
+        "No sitemap URL was discovered in robots.txt or /sitemap.xml"
+      ],
+      "recommendation": "Add sitemap.xml and reference it from robots.txt."
+    },
+    {
+      "id": "missing-llms-txt",
+      "title": "Add llms.txt",
+      "description": "AI agents do not have a compact publisher-approved source map.",
+      "category": "aeo",
+      "severity": "medium",
+      "url": "https://www.w3.org/llms.txt",
+      "evidence": [
+        "llms.txt was not found"
+      ],
+      "recommendation": "Publish llms.txt with canonical source pages, update cadence, and citation preferences."
+    },
+    {
+      "id": "missing-llms-full",
+      "title": "Consider llms-full.txt for deep source context",
+      "description": "Long-form source packs can help AI systems summarize complex documentation or research.",
+      "category": "geo",
+      "severity": "info",
+      "url": "https://www.w3.org/llms-full.txt",
+      "evidence": [
+        "llms-full.txt was not found"
+      ],
+      "recommendation": "Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides."
+    },
+    {
+      "id": "missing-title-1rkeh5j",
+      "title": "Add a descriptive title",
+      "description": "The title tag is missing or too short.",
+      "category": "seo",
+      "severity": "medium",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "The title tag is missing or too short."
+      ],
+      "recommendation": "Write a clear title that names the entity, topic, and page purpose."
+    },
+    {
+      "id": "weak-description-1rkeh5j",
+      "title": "Strengthen the meta description",
+      "description": "The meta description is missing or short.",
+      "category": "seo",
+      "severity": "low",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "The meta description is missing or short."
+      ],
+      "recommendation": "Add a concise summary that helps crawlers classify the page."
+    },
+    {
+      "id": "missing-canonical-1rkeh5j",
+      "title": "Add a canonical URL",
+      "description": "The page does not declare its canonical URL.",
+      "category": "seo",
+      "severity": "medium",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "The page does not declare its canonical URL."
+      ],
+      "recommendation": "Add a canonical link so answer engines cite the preferred source."
+    },
+    {
+      "id": "h1-count-1rkeh5j",
+      "title": "Use exactly one clear H1",
+      "description": "Found 0 H1 elements.",
+      "category": "seo",
+      "severity": "low",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "Found 0 H1 elements."
+      ],
+      "recommendation": "Use one H1 that states the main answer or subject of the page."
+    },
+    {
+      "id": "missing-schema-1rkeh5j",
+      "title": "Add structured data",
+      "description": "No JSON-LD or microdata schema types were detected.",
+      "category": "aeo",
+      "severity": "medium",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "No JSON-LD or microdata schema types were detected."
+      ],
+      "recommendation": "Add schema.org Article, FAQPage, Product, Organization, or WebPage markup as appropriate."
+    },
+    {
+      "id": "missing-author-1rkeh5j",
+      "title": "Expose author or publisher metadata",
+      "description": "No author metadata was detected.",
+      "category": "trust",
+      "severity": "medium",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "No author metadata was detected."
+      ],
+      "recommendation": "Add author/publisher metadata in visible content and structured data."
+    },
+    {
+      "id": "missing-dates-1rkeh5j",
+      "title": "Add published or reviewed dates",
+      "description": "No published, modified, or reviewed date was detected.",
+      "category": "trust",
+      "severity": "low",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "No published, modified, or reviewed date was detected."
+      ],
+      "recommendation": "Add visible and structured freshness metadata so answer engines know whether the page is current."
+    },
+    {
+      "id": "missing-citations-1rkeh5j",
+      "title": "Add outbound citations for factual claims",
+      "description": "No citation-like links or cite elements were detected.",
+      "category": "geo",
+      "severity": "medium",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "No citation-like links or cite elements were detected."
+      ],
+      "recommendation": "Link important claims to primary sources, research, docs, or your own canonical evidence."
+    },
+    {
+      "id": "missing-answer-blocks-1rkeh5j",
+      "title": "Add answer-ready sections",
+      "description": "No FAQ, details, HowTo, or answer blocks were detected.",
+      "category": "aeo",
+      "severity": "low",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "No FAQ, details, HowTo, or answer blocks were detected."
+      ],
+      "recommendation": "Add concise answer blocks that summarize key questions without hiding the full source context."
+    },
+    {
+      "id": "weak-internal-links-1rkeh5j",
+      "title": "Add internal links to canonical source pages",
+      "description": "The first crawled page has no internal links.",
+      "category": "geo",
+      "severity": "low",
+      "url": "https://www.w3.org/",
+      "evidence": [
+        "The first crawled page has no internal links."
+      ],
+      "recommendation": "Link to related evergreen pages so crawlers can discover deeper source material."
+    }
+  ],
+  "fixes": [
+    {
+      "id": "starter-llms-txt",
+      "title": "Starter llms.txt",
+      "target": "/llms.txt",
+      "body": "# www.w3.org\n\n> Canonical source pages for AI answer engines. Please cite the canonical URL when using this content.\n\n## Core Sources\n- https://www.w3.org/\n\n## Attribution\n- Prefer direct links to the canonical page.\n- Preserve author, publisher, and last-updated context when available.",
+      "rationale": "A short, explicit source map gives crawlers and answer engines a publisher-approved entry point."
+    },
+    {
+      "id": "webpage-schema-template",
+      "title": "WebPage JSON-LD template",
+      "target": "<head> application/ld+json",
+      "body": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebPage\",\n  \"name\": \"Page title\",\n  \"url\": \"https://www.w3.org/\",\n  \"description\": \"Page description\"\n}",
+      "rationale": "WebPage markup provides a general-purpose schema baseline for any page that does not fit a narrower type."
+    },
+    {
+      "id": "organization-schema-template",
+      "title": "Organization JSON-LD template",
+      "target": "<head> application/ld+json",
+      "body": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"name\": \"www.w3.org\",\n  \"url\": \"https://www.w3.org\",\n  \"logo\": \"https://www.w3.org/logo.png\"\n}",
+      "rationale": "Organization markup reinforces the publisher identity behind the source material."
+    },
+    {
+      "id": "citation-block-template",
+      "title": "Citation block pattern",
+      "target": "Evidence-heavy sections",
+      "body": "### Sources\n\n- [Primary source title](https://example.com/source) - why it supports this claim.\n- [Publisher evidence page](/research/example) - first-party context and methodology.\n",
+      "rationale": "Clear sources make generated answers more verifiable and more likely to credit the publisher."
+    }
+  ],
+  "aiAnalysis": {
+    "mode": "mock",
+    "summary": "The site has crawlable content but needs a clearer AI source map and attribution policy.",
+    "contentGaps": [
+      "Add schema.org markup to priority pages.",
+      "Add citations near factual claims."
+    ],
+    "entityClarity": "Author and publisher identity is weak; add visible bylines and Organization/Person schema.",
+    "citationReadiness": "Citation readiness is limited because factual support is not obvious to crawlers.",
+    "recommendations": [
+      "Publish /llms.txt with canonical source URLs.",
+      "Prefer canonical, dated, author-attributed pages over thin landing pages.",
+      "Use answer blocks to summarize without replacing the full source context."
+    ]
+  },
+  "ethics": {
+    "respectfulCrawl": true,
+    "noRankingManipulation": true,
+    "attributionFirst": true
+  }
+}

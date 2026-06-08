@@ -33,7 +33,8 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc -b packages/schemas packages/crawler packages/audit packages/strategy packages/cli && npm run typecheck -w @openaeo/web",
     "test": "vitest run",
-    "audit:fixture": "tsx packages/cli/src/index.ts audit http://127.0.0.1:4173 --max-pages 5 --out reports --mock-ai --allow-private-network"
+    "audit:fixture": "tsx packages/cli/src/index.ts audit http://127.0.0.1:4173 --max-pages 5 --out reports --mock-ai --allow-private-network",
+    "preview:fixture": "npx vite preview --port 4173 --strictPort --root examples/fixtures/site"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,0 +1,255 @@
+{
+  "id": "openaeo-127.0.0.1-lzo4rx",
+  "projectName": "OpenAEO Fixture",
+  "auditedUrl": "http://127.0.0.1:4173/",
+  "generatedAt": "2026-06-07T14:06:22.231Z",
+  "score": 57,
+  "categoryScores": {
+    "seo": 100,
+    "aeo": 49,
+    "geo": 61,
+    "trust": 0
+  },
+  "pages": [
+    {
+      "url": "http://127.0.0.1:4173/",
+      "status": 200,
+      "title": "OpenAEO Fixture Publisher Guide",
+      "description": "A local fixture page used to validate OpenAEO audits for publisher attribution and AI readiness.",
+      "canonical": "http://127.0.0.1:4173/",
+      "redirectChain": [],
+      "h1": [
+        "OpenAEO Fixture Publisher Guide"
+      ],
+      "headings": [
+        "OpenAEO Fixture Publisher Guide",
+        "Sources"
+      ],
+      "internalLinks": [
+        "http://127.0.0.1:4173/about.html"
+      ],
+      "externalLinks": [
+        "https://schema.org/Article"
+      ],
+      "schemaTypes": [
+        "Article",
+        "Person"
+      ],
+      "openGraph": {
+        "og:title": "OpenAEO Fixture Publisher Guide"
+      },
+      "hasAuthor": false,
+      "hasPublishedDate": false,
+      "hasModifiedDate": false,
+      "citationCount": 1,
+      "answerBlockCount": 1,
+      "wordCount": 29,
+      "fetchMs": 6
+    },
+    {
+      "url": "http://127.0.0.1:4173/about.html",
+      "status": 200,
+      "title": "About The OpenAEO Fixture",
+      "description": "Background page for the OpenAEO local fixture site used in CLI and crawler validation.",
+      "canonical": "http://127.0.0.1:4173/about.html",
+      "redirectChain": [],
+      "h1": [
+        "About The OpenAEO Fixture"
+      ],
+      "headings": [
+        "About The OpenAEO Fixture"
+      ],
+      "internalLinks": [
+        "http://127.0.0.1:4173/"
+      ],
+      "externalLinks": [],
+      "schemaTypes": [],
+      "openGraph": {},
+      "hasAuthor": false,
+      "hasPublishedDate": false,
+      "hasModifiedDate": false,
+      "citationCount": 0,
+      "answerBlockCount": 0,
+      "wordCount": 17,
+      "fetchMs": 2
+    }
+  ],
+  "siteSignals": {
+    "robotsTxt": {
+      "found": true,
+      "url": "http://127.0.0.1:4173/robots.txt"
+    },
+    "sitemap": {
+      "found": true,
+      "url": "http://127.0.0.1:4173/sitemap.xml",
+      "discoveredUrls": [
+        "http://127.0.0.1:4173/",
+        "http://127.0.0.1:4173/about.html"
+      ]
+    },
+    "llmsTxt": {
+      "found": true,
+      "url": "http://127.0.0.1:4173/llms.txt",
+      "summary": "# OpenAEO Fixture\n\n> Local source map for OpenAEO validation.\n\n- http://127.0.0.1:4173/\n- http://127.0.0.1:4173/about.html\n"
+    },
+    "llmsFullTxt": {
+      "found": false,
+      "url": "http://127.0.0.1:4173/llms-full.txt"
+    }
+  },
+  "issues": [
+    {
+      "id": "missing-llms-full",
+      "title": "Consider llms-full.txt for deep source context",
+      "description": "Long-form source packs can help AI systems summarize complex documentation or research.",
+      "category": "geo",
+      "severity": "info",
+      "url": "http://127.0.0.1:4173/llms-full.txt",
+      "evidence": [
+        "llms-full.txt was not found"
+      ],
+      "recommendation": "Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides."
+    },
+    {
+      "id": "missing-author-1kei207",
+      "title": "Expose author or publisher metadata",
+      "description": "No author metadata was detected.",
+      "category": "trust",
+      "severity": "medium",
+      "url": "http://127.0.0.1:4173/",
+      "evidence": [
+        "No author metadata was detected."
+      ],
+      "recommendation": "Add author/publisher metadata in visible content and structured data."
+    },
+    {
+      "id": "missing-dates-1kei207",
+      "title": "Add published or reviewed dates",
+      "description": "No published, modified, or reviewed date was detected.",
+      "category": "trust",
+      "severity": "low",
+      "url": "http://127.0.0.1:4173/",
+      "evidence": [
+        "No published, modified, or reviewed date was detected."
+      ],
+      "recommendation": "Add visible and structured freshness metadata so answer engines know whether the page is current."
+    },
+    {
+      "id": "missing-schema-14aomdv",
+      "title": "Add structured data",
+      "description": "No JSON-LD or microdata schema types were detected.",
+      "category": "aeo",
+      "severity": "medium",
+      "url": "http://127.0.0.1:4173/about.html",
+      "evidence": [
+        "No JSON-LD or microdata schema types were detected."
+      ],
+      "recommendation": "Add schema.org Article, FAQPage, Product, Organization, or WebPage markup as appropriate."
+    },
+    {
+      "id": "missing-author-14aomdv",
+      "title": "Expose author or publisher metadata",
+      "description": "No author metadata was detected.",
+      "category": "trust",
+      "severity": "medium",
+      "url": "http://127.0.0.1:4173/about.html",
+      "evidence": [
+        "No author metadata was detected."
+      ],
+      "recommendation": "Add author/publisher metadata in visible content and structured data."
+    },
+    {
+      "id": "missing-dates-14aomdv",
+      "title": "Add published or reviewed dates",
+      "description": "No published, modified, or reviewed date was detected.",
+      "category": "trust",
+      "severity": "low",
+      "url": "http://127.0.0.1:4173/about.html",
+      "evidence": [
+        "No published, modified, or reviewed date was detected."
+      ],
+      "recommendation": "Add visible and structured freshness metadata so answer engines know whether the page is current."
+    },
+    {
+      "id": "missing-citations-14aomdv",
+      "title": "Add outbound citations for factual claims",
+      "description": "No citation-like links or cite elements were detected.",
+      "category": "geo",
+      "severity": "medium",
+      "url": "http://127.0.0.1:4173/about.html",
+      "evidence": [
+        "No citation-like links or cite elements were detected."
+      ],
+      "recommendation": "Link important claims to primary sources, research, docs, or your own canonical evidence."
+    },
+    {
+      "id": "missing-answer-blocks-14aomdv",
+      "title": "Add answer-ready sections",
+      "description": "No FAQ, details, HowTo, or answer blocks were detected.",
+      "category": "aeo",
+      "severity": "low",
+      "url": "http://127.0.0.1:4173/about.html",
+      "evidence": [
+        "No FAQ, details, HowTo, or answer blocks were detected."
+      ],
+      "recommendation": "Add concise answer blocks that summarize key questions without hiding the full source context."
+    }
+  ],
+  "fixes": [
+    {
+      "id": "webpage-schema-template",
+      "title": "WebPage JSON-LD template",
+      "target": "<head> application/ld+json",
+      "body": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebPage\",\n  \"name\": \"OpenAEO Fixture Publisher Guide\",\n  \"url\": \"http://127.0.0.1:4173/\",\n  \"description\": \"A local fixture page used to validate OpenAEO audits for publisher attribution and AI readiness.\"\n}",
+      "rationale": "WebPage markup provides a general-purpose schema baseline for any page that does not fit a narrower type."
+    },
+    {
+      "id": "organization-schema-template",
+      "title": "Organization JSON-LD template",
+      "target": "<head> application/ld+json",
+      "body": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"name\": \"OpenAEO Fixture Publisher Guide\",\n  \"url\": \"http://127.0.0.1:4173\",\n  \"logo\": \"http://127.0.0.1:4173/logo.png\"\n}",
+      "rationale": "Organization markup reinforces the publisher identity behind the source material."
+    },
+    {
+      "id": "faqpage-schema-template",
+      "title": "FAQPage JSON-LD template",
+      "target": "<head> application/ld+json",
+      "body": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"Question goes here\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Answer goes here.\"\n      }\n    }\n  ]\n}",
+      "rationale": "FAQ markup turns answer blocks into explicit question-and-answer structure for crawlers."
+    },
+    {
+      "id": "article-schema-template",
+      "title": "Article JSON-LD template",
+      "target": "<head> application/ld+json",
+      "body": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"OpenAEO Fixture Publisher Guide\",\n  \"url\": \"http://127.0.0.1:4173/\",\n  \"description\": \"A local fixture page used to validate OpenAEO audits for publisher attribution and AI readiness.\",\n  \"author\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Publisher name\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Publisher name\"\n  },\n  \"dateModified\": \"YYYY-MM-DD\"\n}",
+      "rationale": "Article markup helps answer engines recognize authorship, canonical URLs, and freshness signals."
+    },
+    {
+      "id": "citation-block-template",
+      "title": "Citation block pattern",
+      "target": "Evidence-heavy sections",
+      "body": "### Sources\n\n- [Primary source title](https://example.com/source) - why it supports this claim.\n- [Publisher evidence page](/research/example) - first-party context and methodology.\n",
+      "rationale": "Clear sources make generated answers more verifiable and more likely to credit the publisher."
+    }
+  ],
+  "aiAnalysis": {
+    "mode": "mock",
+    "summary": "The site exposes AI-readable source signals and should now improve structured evidence quality.",
+    "contentGaps": [
+      "Add schema.org markup to priority pages.",
+      "Add citations near factual claims."
+    ],
+    "entityClarity": "Author and publisher identity is weak; add visible bylines and Organization/Person schema.",
+    "citationReadiness": "Citation readiness is limited because factual support is not obvious to crawlers.",
+    "recommendations": [
+      "Keep /llms.txt current as important pages change.",
+      "Prefer canonical, dated, author-attributed pages over thin landing pages.",
+      "Use answer blocks to summarize without replacing the full source context."
+    ]
+  },
+  "ethics": {
+    "respectfulCrawl": true,
+    "noRankingManipulation": true,
+    "attributionFirst": true
+  }
+}

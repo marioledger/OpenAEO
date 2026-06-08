@@ -87,6 +87,8 @@ describe("openaeo cli", () => {
           "2",
           "--mock-ai",
           "--allow-private-network",
+          "--generated-at",
+          "2026-06-07T14:06:22.231Z",
           "--no-markdown"
         ],
         {
@@ -94,7 +96,10 @@ describe("openaeo cli", () => {
         }
       );
       expect(result.stdout).toContain("Reports:");
-      expect(await readFile(join(outDir, "openaeo-report.json"), "utf8")).toContain("\"score\"");
+      const report = JSON.parse(await readFile(join(outDir, "openaeo-report.json"), "utf8")) as {
+        generatedAt: string;
+      };
+      expect(report.generatedAt).toBe("2026-06-07T14:06:22.231Z");
       await expect(access(join(outDir, "openaeo-report.md"))).rejects.toThrow();
     } finally {
       await rm(outDir, { recursive: true, force: true });

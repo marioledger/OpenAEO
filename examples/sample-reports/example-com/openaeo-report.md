@@ -59,7 +59,7 @@ Target: `/llms.txt`
 
 A short, explicit source map gives crawlers and answer engines a publisher-approved entry point.
 
-```
+```md
 # www.example.com
 
 > Canonical source pages for AI answer engines. Please cite the canonical URL when using this content.
@@ -78,7 +78,7 @@ Target: `<head> application/ld+json`
 
 Structured data helps AI systems identify authorship, canonical URLs, freshness, and page type.
 
-```
+```json
 {
   "@context": "https://schema.org",
   "@type": "Article",
@@ -102,7 +102,7 @@ Target: `Evidence-heavy sections`
 
 Clear sources make generated answers more verifiable and more likely to credit the publisher.
 
-```
+```md
 ### Sources
 
 - [Primary source title](https://example.com/source) - why it supports this claim.
