@@ -155,17 +155,28 @@ export const promptSetObservationSchema = z.object({
   sourcePositions: z.array(z.number().int().nonnegative()).default([])
 });
 
-export const promptSetRunSchema = z.object({
+const promptSetRunCommonShape = {
   id: z.string(),
   promptSetId: z.string(),
   siteUrl: z.string().url(),
-  generatedAt: z.string(),
-  provider: z.string().min(1),
-  mode: z.enum(["mock", "provider"]),
+  generatedAt: z.iso.datetime(),
   observations: z.array(promptSetObservationSchema),
   privacy: promptSetSchema.shape.privacy,
   notes: z.array(z.string()).default([])
-});
+};
+
+export const promptSetRunSchema = z.discriminatedUnion("mode", [
+  z.object({
+    ...promptSetRunCommonShape,
+    mode: z.literal("mock"),
+    provider: z.literal("mock")
+  }),
+  z.object({
+    ...promptSetRunCommonShape,
+    mode: z.literal("provider"),
+    provider: z.string().min(1)
+  })
+]);
 
 export const auditReportSchema = z.object({
   id: z.string(),
