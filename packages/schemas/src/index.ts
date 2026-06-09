@@ -174,7 +174,12 @@ export const promptSetRunSchema = z.discriminatedUnion("mode", [
   z.object({
     ...promptSetRunCommonShape,
     mode: z.literal("provider"),
-    provider: z.string().min(1)
+    provider: z
+      .string()
+      .min(1)
+      .refine((value) => value !== "mock", {
+        message: 'provider cannot be "mock" when mode is "provider"'
+      })
   })
 ]);
 

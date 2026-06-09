@@ -92,6 +92,16 @@ describe("prompt-set experiments", () => {
     ).toMatchObject({ success: false });
   });
 
+  it("rejects provider-mode runs that use the mock provider", () => {
+    expect(
+      promptSetRunSchema.safeParse({
+        ...baseRun,
+        mode: "provider",
+        provider: "mock"
+      })
+    ).toMatchObject({ success: false });
+  });
+
   it("rejects invalid mode values", () => {
     expect(
       promptSetRunSchema.safeParse({
