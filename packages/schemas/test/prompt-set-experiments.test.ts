@@ -63,6 +63,17 @@ describe("prompt-set experiments", () => {
     expect(run.privacy.allowRawResponses).toBe(false);
   });
 
+  it("parses a provider-mode run with a lawful provider name", () => {
+    const run = promptSetRunSchema.parse({
+      ...baseRun,
+      mode: "provider",
+      provider: "openai"
+    });
+
+    expect(run.mode).toBe("provider");
+    expect(run.provider).toBe("openai");
+  });
+
   it("rejects non-ISO generatedAt values", () => {
     expect(
       promptSetRunSchema.safeParse({
