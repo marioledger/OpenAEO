@@ -4,7 +4,7 @@ OpenAEO keeps reusable product logic in packages so the CLI, dashboard, tests, a
 
 | Package | Purpose |
 | --- | --- |
-| `@openaeo/schemas` | Zod schemas, report types, and sample report factory. |
+| `@openaeo/schemas` | Zod schemas, report types, prompt-set experiment contracts, and sample report factory. |
 | `@openaeo/crawler` | Respectful crawler for robots, sitemap, page metadata, links, schema, and AI source files. |
 | `@openaeo/audit` | SEO/AEO/GEO/trust rules, scoring, generated fixes, Markdown output, and optional AI analysis. |
 | `openaeo` | CLI entry point for `openaeo audit <url>`. |

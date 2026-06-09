@@ -124,6 +124,49 @@ export const strategyBriefSchema = z.object({
   contentUpdates: z.array(z.string())
 });
 
+export const promptSetVariantSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  prompt: z.string(),
+  intent: z.string(),
+  tags: z.array(z.string()).default([])
+});
+
+export const promptSetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  targetSiteUrl: z.string().url(),
+  provider: z.string().min(1),
+  prompts: z.array(promptSetVariantSchema).min(1),
+  privacy: z.object({
+    allowRawResponses: z.boolean().default(false),
+    redactPersonalData: z.boolean().default(true),
+    notes: z.array(z.string()).default([])
+  }),
+  notes: z.array(z.string()).default([])
+});
+
+export const promptSetObservationSchema = z.object({
+  promptId: z.string(),
+  responseSummary: z.string(),
+  citedUrls: z.array(z.string().url()).default([]),
+  mentionCount: z.number().int().nonnegative().default(0),
+  sourcePositions: z.array(z.number().int().nonnegative()).default([])
+});
+
+export const promptSetRunSchema = z.object({
+  id: z.string(),
+  promptSetId: z.string(),
+  siteUrl: z.string().url(),
+  generatedAt: z.string(),
+  provider: z.string().min(1),
+  mode: z.enum(["mock", "provider"]),
+  observations: z.array(promptSetObservationSchema),
+  privacy: promptSetSchema.shape.privacy,
+  notes: z.array(z.string()).default([])
+});
+
 export const auditReportSchema = z.object({
   id: z.string(),
   projectName: z.string(),
@@ -161,6 +204,10 @@ export type AuditReport = z.infer<typeof auditReportSchema>;
 export type StrategyItem = z.infer<typeof strategyItemSchema>;
 export type StrategySignal = z.infer<typeof strategySignalSchema>;
 export type StrategyBrief = z.infer<typeof strategyBriefSchema>;
+export type PromptSetVariant = z.infer<typeof promptSetVariantSchema>;
+export type PromptSet = z.infer<typeof promptSetSchema>;
+export type PromptSetObservation = z.infer<typeof promptSetObservationSchema>;
+export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
 
 export function createSampleReport(): AuditReport {
   return {
