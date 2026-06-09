@@ -80,4 +80,14 @@ describe("prompt-set experiments", () => {
       })
     ).toMatchObject({ success: false });
   });
+
+  it("rejects invalid mode values", () => {
+    expect(
+      promptSetRunSchema.safeParse({
+        ...baseRun,
+        mode: "live",
+        provider: "mock"
+      })
+    ).toMatchObject({ success: false });
+  });
 });
