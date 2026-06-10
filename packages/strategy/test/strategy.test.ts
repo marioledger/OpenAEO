@@ -42,6 +42,22 @@ const server = createServer((request, response) => {
     return;
   }
 
+  if (request.url === "/feed-content.xml") {
+    response.setHeader("content-type", "application/rss+xml");
+    response.end(`<?xml version="1.0"?>
+      <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+        <channel>
+          <title>Publisher AI updates</title>
+          <item>
+            <title>Schema update</title>
+            <link>https://example.com/schema</link>
+            <content:encoded><![CDATA[Publisher schema guidance changed for citation and metadata quality.]]></content:encoded>
+          </item>
+        </channel>
+      </rss>`);
+    return;
+  }
+
   response.statusCode = 404;
   response.end("not found");
 });
@@ -94,5 +110,18 @@ describe("runStrategyMonitor", () => {
     expect(brief.items).toHaveLength(1);
     expect(brief.items[0]?.publishedAt).toBeUndefined();
     expect(brief.signals.map((signal) => signal.id)).toContain("citation-attribution");
+  });
+
+  it("reads RSS content:encoded bodies when descriptions are missing", async () => {
+    const brief = await runStrategyMonitor({
+      siteUrl: "https://publisher.example",
+      feedUrls: [`${baseUrl}/feed-content.xml`],
+      mockAi: true,
+      allowPrivateNetwork: true
+    });
+
+    expect(brief.items).toHaveLength(1);
+    expect(brief.items[0]?.summary).toContain("citation and metadata quality");
+    expect(brief.items[0]?.matchedTerms).toEqual(expect.arrayContaining(["citation", "metadata"]));
   });
 });
