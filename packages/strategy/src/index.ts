@@ -216,7 +216,9 @@ function parseFeed(xml: string, sourceUrl: string): StrategyItem[] {
         readFirstTag(block, ["guid", "id"]) ||
         sourceUrl
     );
-    const summary = decodeEntities(stripTags(readFirstTag(block, ["description", "summary", "content"]) || ""));
+    const summary = decodeEntities(
+      stripTags(readFirstTag(block, ["description", "summary", "content:encoded", "content"]) || "")
+    );
     const publishedAt = parseOptionalDate(readFirstTag(block, ["pubDate", "published", "updated"]));
     const matchedTerms = matchTerms(`${title} ${summary}`);
     return {
