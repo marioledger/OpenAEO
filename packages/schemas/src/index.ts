@@ -225,6 +225,9 @@ export type PromptSet = z.infer<typeof promptSetSchema>;
 export type PromptSetObservation = z.infer<typeof promptSetObservationSchema>;
 export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
 
+/**
+ * Build a deterministic sample audit report for docs, fixtures, and tests.
+ */
 export function createSampleReport(): AuditReport {
   return {
     id: "sample-openaeo-report",
@@ -314,6 +317,9 @@ export function createSampleReport(): AuditReport {
   };
 }
 
+/**
+ * Build a deterministic sample prompt set for visibility and citation checks.
+ */
 export function createSamplePromptSet(): PromptSet {
   return {
     id: "sample-brand-visibility-prompt-set",
@@ -346,6 +352,9 @@ export function createSamplePromptSet(): PromptSet {
   };
 }
 
+/**
+ * Build a deterministic sample prompt-set run that matches the sample prompt set.
+ */
 export function createSamplePromptSetRun(): PromptSetRun {
   return {
     id: "sample-brand-visibility-run",
