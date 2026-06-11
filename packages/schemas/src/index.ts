@@ -314,6 +314,71 @@ export function createSampleReport(): AuditReport {
   };
 }
 
+export function createSamplePromptSet(): PromptSet {
+  return {
+    id: "sample-brand-visibility-prompt-set",
+    name: "Brand visibility prompts",
+    description: "A compact prompt set for checking whether the publisher appears clearly in answer engine output.",
+    targetSiteUrl: "https://example.com",
+    provider: "mock",
+    prompts: [
+      {
+        id: "brand-summary",
+        label: "Brand summary",
+        prompt: "What is Example Publisher best known for?",
+        intent: "Measure whether the site is surfaced with a clear entity summary.",
+        tags: ["entity", "visibility"]
+      },
+      {
+        id: "citation-check",
+        label: "Citation check",
+        prompt: "Which source pages would you cite for a summary of Example Publisher?",
+        intent: "Check whether the prompt surfaces canonical sources and citations.",
+        tags: ["citation", "source-map"]
+      }
+    ],
+    privacy: {
+      allowRawResponses: false,
+      redactPersonalData: true,
+      notes: ["Store only redacted summaries unless a workflow explicitly allows raw output."]
+    },
+    notes: ["Keep prompt-set runs separate from audit reports."]
+  };
+}
+
+export function createSamplePromptSetRun(): PromptSetRun {
+  return {
+    id: "sample-brand-visibility-run",
+    promptSetId: "sample-brand-visibility-prompt-set",
+    siteUrl: "https://example.com",
+    generatedAt: "2026-06-09T00:00:00.000Z",
+    mode: "mock",
+    provider: "mock",
+    observations: [
+      {
+        promptId: "brand-summary",
+        responseSummary: "Example Publisher is surfaced as a practical guide publisher with a direct citation.",
+        citedUrls: ["https://example.com/about"],
+        mentionCount: 1,
+        sourcePositions: [1]
+      },
+      {
+        promptId: "citation-check",
+        responseSummary: "The answer cites the homepage and about page as the most useful sources.",
+        citedUrls: ["https://example.com", "https://example.com/about"],
+        mentionCount: 2,
+        sourcePositions: [1, 2]
+      }
+    ],
+    privacy: {
+      allowRawResponses: false,
+      redactPersonalData: true,
+      notes: ["Use truncated summaries when storing outputs."]
+    },
+    notes: ["This fixture demonstrates the separate prompt-set run artifact."]
+  };
+}
+
 export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);
   const detectionText = [

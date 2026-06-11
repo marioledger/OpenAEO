@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { promptSetRunSchema, promptSetSchema } from "../src/index.js";
+import {
+  createSamplePromptSet,
+  createSamplePromptSetRun,
+  promptSetRunSchema,
+  promptSetSchema
+} from "../src/index.js";
 
 describe("prompt-set experiments", () => {
   const baseRun = {
@@ -72,6 +77,16 @@ describe("prompt-set experiments", () => {
 
     expect(run.mode).toBe("provider");
     expect(run.provider).toBe("openai");
+  });
+
+  it("creates a sample prompt-set fixture and matching mock run", () => {
+    const promptSet = promptSetSchema.parse(createSamplePromptSet());
+    const run = promptSetRunSchema.parse(createSamplePromptSetRun());
+
+    expect(promptSet.prompts).toHaveLength(2);
+    expect(promptSet.privacy.redactPersonalData).toBe(true);
+    expect(run.promptSetId).toBe(promptSet.id);
+    expect(run.observations[1].citedUrls).toEqual(["https://example.com", "https://example.com/about"]);
   });
 
   it("rejects non-ISO generatedAt values", () => {
