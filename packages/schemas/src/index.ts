@@ -388,6 +388,9 @@ export function createSamplePromptSetRun(): PromptSetRun {
   };
 }
 
+/**
+ * Derive likely schema templates for a page snapshot from visible signals.
+ */
 export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);
   const detectionText = [
@@ -429,6 +432,9 @@ export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   return [...pageTypeSet].map((type) => buildSchemaTemplate(type, page));
 }
 
+/**
+ * Render a concrete schema template for a detected page type.
+ */
 function buildSchemaTemplate(type: SchemaTemplateType, page: PageSnapshot): SchemaTemplate {
   const canonical = page.canonical ?? page.url;
   const origin = new URL(page.url).origin;
@@ -552,6 +558,9 @@ function buildSchemaTemplate(type: SchemaTemplateType, page: PageSnapshot): Sche
   }
 }
 
+/**
+ * Parse a URL path safely, returning an empty string when parsing fails.
+ */
 function safeUrlPath(rawUrl: string): string {
   try {
     return new URL(rawUrl).pathname;
