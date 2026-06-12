@@ -314,6 +314,74 @@ export function createSampleReport(): AuditReport {
   };
 }
 
+export function createSamplePromptSet(): PromptSet {
+  return {
+    id: "visibility-brand-prompt-set",
+    name: "Brand visibility prompts",
+    description: "A lightweight prompt set for checking how a brand appears in answers.",
+    targetSiteUrl: "https://example.com",
+    provider: "lawful-provider",
+    prompts: [
+      {
+        id: "prompt-1",
+        label: "Brand summary",
+        prompt: "What is Example Publisher best known for?",
+        intent: "Measure whether the site is surfaced with a clear entity summary.",
+        tags: ["entity", "visibility"]
+      },
+      {
+        id: "prompt-2",
+        label: "Citation readiness",
+        prompt: "Which source should be cited for Example Publisher's publishing guidelines?",
+        intent: "Check whether the answer points at a canonical source page.",
+        tags: ["citation", "source map"]
+      }
+    ],
+    privacy: {
+      allowRawResponses: false,
+      redactPersonalData: true,
+      notes: ["Avoid collecting personal data from responses."]
+    },
+    notes: ["Store this artifact separately from site audits."]
+  };
+}
+
+export function createSamplePromptSetRun(options: {
+  mode?: "mock" | "provider";
+  provider?: string;
+} = {}): PromptSetRun {
+  const promptSet = createSamplePromptSet();
+  const mode = options.mode ?? "mock";
+  const provider = mode === "mock" ? "mock" : options.provider ?? "openai";
+
+  return promptSetRunSchema.parse({
+    id: "visibility-brand-run",
+    promptSetId: promptSet.id,
+    siteUrl: promptSet.targetSiteUrl,
+    generatedAt: "2026-06-09T00:00:00.000Z",
+    provider,
+    mode,
+    observations: [
+      {
+        promptId: "prompt-1",
+        responseSummary: "Example Publisher appears in the answer with one citation.",
+        citedUrls: ["https://example.com/about"],
+        mentionCount: 1,
+        sourcePositions: [1]
+      },
+      {
+        promptId: "prompt-2",
+        responseSummary: "The answer cites the publishing guide and a canonical source page.",
+        citedUrls: ["https://example.com/guidelines"],
+        mentionCount: 1,
+        sourcePositions: [1, 2]
+      }
+    ],
+    privacy: promptSet.privacy,
+    notes: ["Keep this output out of the audit report schema."]
+  });
+}
+
 export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);
   const detectionText = [

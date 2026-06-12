@@ -21,4 +21,4 @@ Prompt-set experiments should only use content and APIs that the maintainer has 
 
 ## Current Status
 
-The repository now has shared schema types and tests for the prompt-set contract. Runtime collection and provider integrations remain future work.
+The repository now has shared schema types, reusable sample fixtures, and tests for the prompt-set contract. Runtime collection and provider integrations remain future work.
