@@ -55,12 +55,53 @@ describe("prompt-set experiments", () => {
     expect(promptSet.privacy.redactPersonalData).toBe(true);
   });
 
+  it("defaults prompt-set privacy and note fields when omitted", () => {
+    const promptSet = promptSetSchema.parse({
+      id: "visibility-brand-prompt-set",
+      name: "Brand visibility prompts",
+      description: "A lightweight prompt set for checking how a brand appears in answers.",
+      targetSiteUrl: "https://example.com",
+      provider: "lawful-provider",
+      prompts: [
+        {
+          id: "prompt-1",
+          label: "Brand summary",
+          prompt: "What is Example Publisher best known for?",
+          intent: "Measure whether the site is surfaced with a clear entity summary."
+        }
+      ],
+      privacy: {
+        allowRawResponses: false,
+        redactPersonalData: true
+      }
+    });
+
+    expect(promptSet.privacy.notes).toEqual([]);
+    expect(promptSet.notes).toEqual([]);
+  });
+
   it("parses a separate mock provider run result format", () => {
     const run = promptSetRunSchema.parse(baseRun);
 
     expect(run.mode).toBe("mock");
     expect(run.observations[0].citedUrls).toEqual(["https://example.com/about"]);
     expect(run.privacy.allowRawResponses).toBe(false);
+  });
+
+  it("defaults prompt-set run privacy and note fields when omitted", () => {
+    const baseRunWithoutNotes = { ...baseRun };
+    delete baseRunWithoutNotes.notes;
+
+    const run = promptSetRunSchema.parse({
+      ...baseRunWithoutNotes,
+      privacy: {
+        allowRawResponses: false,
+        redactPersonalData: true
+      }
+    });
+
+    expect(run.privacy.notes).toEqual([]);
+    expect(run.notes).toEqual([]);
   });
 
   it("parses a provider-mode run with a lawful provider name", () => {
