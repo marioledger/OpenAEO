@@ -89,7 +89,9 @@ describe("prompt-set experiments", () => {
   });
 
   it("defaults prompt-set run privacy and note fields when omitted", () => {
-    const { notes: _notes, ...baseRunWithoutNotes } = baseRun;
+    const baseRunWithoutNotes = { ...baseRun };
+    delete baseRunWithoutNotes.notes;
+
     const run = promptSetRunSchema.parse({
       ...baseRunWithoutNotes,
       privacy: {
