@@ -229,7 +229,7 @@ export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
  * Build a deterministic sample audit report for docs, fixtures, and tests.
  */
 export function createSampleReport(): AuditReport {
-  return {
+  return auditReportSchema.parse({
     id: "sample-openaeo-report",
     projectName: "OpenAEO Demo",
     auditedUrl: "https://example.com",
@@ -314,7 +314,7 @@ export function createSampleReport(): AuditReport {
       noRankingManipulation: true,
       attributionFirst: true
     }
-  };
+  });
 }
 
 /**
