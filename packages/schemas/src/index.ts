@@ -225,6 +225,9 @@ export type PromptSet = z.infer<typeof promptSetSchema>;
 export type PromptSetObservation = z.infer<typeof promptSetObservationSchema>;
 export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
 
+/**
+ * Build a validated sample audit report for docs and tests.
+ */
 export function createSampleReport(): AuditReport {
   return auditReportSchema.parse({
     id: "sample-openaeo-report",
@@ -314,6 +317,9 @@ export function createSampleReport(): AuditReport {
   });
 }
 
+/**
+ * Build a sample prompt set for AI visibility experiments.
+ */
 export function createSamplePromptSet(): PromptSet {
   return {
     id: "visibility-brand-prompt-set",
@@ -346,6 +352,9 @@ export function createSamplePromptSet(): PromptSet {
   };
 }
 
+/**
+ * Build a validated sample prompt-set run for mock or provider-mode tests.
+ */
 export function createSamplePromptSetRun(options: {
   mode?: "mock" | "provider";
   provider?: string;
