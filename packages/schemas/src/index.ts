@@ -226,10 +226,10 @@ export type PromptSetObservation = z.infer<typeof promptSetObservationSchema>;
 export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
 
 /**
- * Build a deterministic sample audit report for docs, fixtures, and tests.
+ * Build a validated sample audit report for tests, fixtures, and docs.
  */
 export function createSampleReport(): AuditReport {
-  return {
+  return auditReportSchema.parse({
     id: "sample-openaeo-report",
     projectName: "OpenAEO Demo",
     auditedUrl: "https://example.com",
@@ -314,14 +314,14 @@ export function createSampleReport(): AuditReport {
       noRankingManipulation: true,
       attributionFirst: true
     }
-  };
+  });
 }
 
 /**
  * Build a deterministic sample prompt set for visibility and citation checks.
  */
 export function createSamplePromptSet(): PromptSet {
-  return {
+  return promptSetSchema.parse({
     id: "sample-brand-visibility-prompt-set",
     name: "Brand visibility prompts",
     description: "A compact prompt set for checking whether the publisher appears clearly in answer engine output.",
@@ -349,7 +349,7 @@ export function createSamplePromptSet(): PromptSet {
       notes: ["Store only redacted summaries unless a workflow explicitly allows raw output."]
     },
     notes: ["Keep prompt-set runs separate from audit reports."]
-  };
+  });
 }
 
 /**
@@ -389,7 +389,7 @@ export function createSamplePromptSetRun(): PromptSetRun {
 }
 
 /**
- * Derive likely schema templates for a page snapshot from visible signals.
+ * Derive schema template suggestions from a page snapshot.
  */
 export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);

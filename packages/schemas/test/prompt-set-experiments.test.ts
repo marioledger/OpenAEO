@@ -130,6 +130,17 @@ describe("prompt-set experiments", () => {
     expect(run.observations[1].citedUrls).toEqual(["https://example.com", "https://example.com/about"]);
   });
 
+  it("uses a custom lawful provider name in provider mode", () => {
+    const run = promptSetRunSchema.parse({
+      ...createSamplePromptSetRun(),
+      mode: "provider",
+      provider: "anthropic"
+    });
+
+    expect(run.mode).toBe("provider");
+    expect(run.provider).toBe("anthropic");
+  });
+
   it("rejects non-ISO generatedAt values", () => {
     expect(
       promptSetRunSchema.safeParse({
