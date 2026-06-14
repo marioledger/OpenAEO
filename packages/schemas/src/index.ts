@@ -321,7 +321,7 @@ export function createSampleReport(): AuditReport {
  * Build a deterministic sample prompt set for visibility and citation checks.
  */
 export function createSamplePromptSet(): PromptSet {
-  return {
+  return promptSetSchema.parse({
     id: "sample-brand-visibility-prompt-set",
     name: "Brand visibility prompts",
     description: "A compact prompt set for checking whether the publisher appears clearly in answer engine output.",
@@ -349,7 +349,7 @@ export function createSamplePromptSet(): PromptSet {
       notes: ["Store only redacted summaries unless a workflow explicitly allows raw output."]
     },
     notes: ["Keep prompt-set runs separate from audit reports."]
-  };
+  });
 }
 
 /**
