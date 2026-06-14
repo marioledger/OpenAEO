@@ -226,7 +226,7 @@ export type PromptSetObservation = z.infer<typeof promptSetObservationSchema>;
 export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
 
 /**
- * Build a deterministic sample audit report for docs, fixtures, and tests.
+ * Build a validated sample audit report for tests, fixtures, and docs.
  */
 export function createSampleReport(): AuditReport {
   return auditReportSchema.parse({
@@ -389,7 +389,7 @@ export function createSamplePromptSetRun(): PromptSetRun {
 }
 
 /**
- * Derive likely schema templates for a page snapshot from visible signals.
+ * Derive schema template suggestions from a page snapshot.
  */
 export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);
