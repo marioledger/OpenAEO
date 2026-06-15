@@ -150,7 +150,7 @@ The Markdown report includes:
 - generated fixes
 - ethical crawl stance
 
-See [sample reports](examples/sample-reports/README.md) for public-site output.
+See [sample reports](examples/sample-reports/README.md) for public-site output and the local fixture scenario.
 
 Strategy monitor output:
 
