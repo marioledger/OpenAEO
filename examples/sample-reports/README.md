@@ -11,6 +11,12 @@ These reports show how OpenAEO output looks against public sites and fixture sce
 | `www.w3.org` | [JSON](w3-org/openaeo-report.json) | [Markdown](w3-org/openaeo-report.md) | Standards body homepage; useful for seeing a public page with sparse crawl depth. |
 | `www.python.org` | [JSON](python-org/openaeo-report.json) | [Markdown](python-org/openaeo-report.md) | Popular open-source project homepage; useful for checking a content-rich public site. |
 
+## Fixture Scenario
+
+| Site | JSON | Markdown | Notes |
+| --- | --- | --- | --- |
+| `127.0.0.1:4173` | [JSON](fixture-site/openaeo-report.json) | [Markdown](fixture-site/openaeo-report.md) | Local fixture site; useful for validating report output without external network access. |
+
 ## Regenerate
 
 Start the local fixture site before regenerating the fixture report:
