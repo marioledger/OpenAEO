@@ -7,7 +7,7 @@
   "categoryScores": {
     "seo": 100,
     "aeo": 49,
-    "geo": 61,
+    "geo": 63,
     "trust": 0
   },
   "pages": [
@@ -44,7 +44,7 @@
       "citationCount": 1,
       "answerBlockCount": 1,
       "wordCount": 29,
-      "fetchMs": 6
+      "fetchMs": 9
     },
     {
       "url": "http://127.0.0.1:4173/about.html",
@@ -90,26 +90,14 @@
     "llmsTxt": {
       "found": true,
       "url": "http://127.0.0.1:4173/llms.txt",
-      "summary": "# OpenAEO Fixture\n\n> Local source map for OpenAEO validation.\n\n- http://127.0.0.1:4173/\n- http://127.0.0.1:4173/about.html\n"
+      "summary": "# OpenAEO Fixture\n\n> Local source map for OpenAEO validation.\n\n- http://127.0.0.1:4173/\n- http://127.0.0.1:4173/about.html\n- http://127.0.0.1:4173/llms-full.txt\n"
     },
     "llmsFullTxt": {
-      "found": false,
+      "found": true,
       "url": "http://127.0.0.1:4173/llms-full.txt"
     }
   },
   "issues": [
-    {
-      "id": "missing-llms-full",
-      "title": "Consider llms-full.txt for deep source context",
-      "description": "Long-form source packs can help AI systems summarize complex documentation or research.",
-      "category": "geo",
-      "severity": "info",
-      "url": "http://127.0.0.1:4173/llms-full.txt",
-      "evidence": [
-        "llms-full.txt was not found"
-      ],
-      "recommendation": "Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides."
-    },
     {
       "id": "missing-author-1kei207",
       "title": "Expose author or publisher metadata",

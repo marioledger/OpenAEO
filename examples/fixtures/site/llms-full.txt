@@ -1,0 +1,11 @@
+# OpenAEO Fixture Full Source Pack
+
+This companion file expands the source map with the full fixture content used by the audit and crawler tests.
+
+## Home
+
+OpenAEO checks whether publisher pages expose source maps, citations, schema, freshness, and answer-ready sections.
+
+## About
+
+This page exists so the crawler can discover an internal source page.

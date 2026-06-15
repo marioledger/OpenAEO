@@ -57,6 +57,14 @@ const schemaRichCrawl: CrawlResult = {
   ]
 };
 
+const llmsFullCrawl: CrawlResult = {
+  ...crawl,
+  siteSignals: {
+    ...crawl.siteSignals,
+    llmsFullTxt: { found: true, url: "https://example.com/llms-full.txt" }
+  }
+};
+
 describe("audit rules", () => {
   it("flags missing AEO and trust signals", () => {
     const issues = collectIssues(crawl);
@@ -74,6 +82,11 @@ describe("audit rules", () => {
     expect(markdown).toContain("# OpenAEO Audit Report");
     expect(markdown).toContain("```json");
     expect(markdown).toContain("```md");
+  });
+
+  it("omits the llms-full issue when a full source pack is available", async () => {
+    const issues = collectIssues(llmsFullCrawl);
+    expect(issues.some((issue) => issue.id === "missing-llms-full")).toBe(false);
   });
 
   it("keeps report metadata stable when a generatedAt override is provided", async () => {

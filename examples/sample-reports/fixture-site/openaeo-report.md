@@ -11,7 +11,7 @@ Overall: **57/100**
 | --- | ---: |
 | SEO | 100 |
 | AEO | 49 |
-| GEO | 61 |
+| GEO | 63 |
 | Trust | 0 |
 
 ## AI Analysis (mock)
@@ -20,8 +20,6 @@ The site exposes AI-readable source signals and should now improve structured ev
 
 ## Issues
 
-- **INFO / geo**: Consider llms-full.txt for deep source context (http://127.0.0.1:4173/llms-full.txt)
-  Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides.
 - **MEDIUM / trust**: Expose author or publisher metadata (http://127.0.0.1:4173/)
   Add author/publisher metadata in visible content and structured data.
 - **LOW / trust**: Add published or reviewed dates (http://127.0.0.1:4173/)
