@@ -226,7 +226,7 @@ export type PromptSetObservation = z.infer<typeof promptSetObservationSchema>;
 export type PromptSetRun = z.infer<typeof promptSetRunSchema>;
 
 /**
- * Build a validated sample audit report for docs and tests.
+ * Build a validated sample audit report for tests, fixtures, and docs.
  */
 export function createSampleReport(): AuditReport {
   return auditReportSchema.parse({
@@ -318,79 +318,79 @@ export function createSampleReport(): AuditReport {
 }
 
 /**
- * Build a sample prompt set for AI visibility experiments.
+ * Build a deterministic sample prompt set for visibility and citation checks.
  */
 export function createSamplePromptSet(): PromptSet {
-  return {
-    id: "visibility-brand-prompt-set",
+  return promptSetSchema.parse({
+    id: "sample-brand-visibility-prompt-set",
     name: "Brand visibility prompts",
-    description: "A lightweight prompt set for checking how a brand appears in answers.",
+    description: "A compact prompt set for checking whether the publisher appears clearly in answer engine output.",
     targetSiteUrl: "https://example.com",
-    provider: "lawful-provider",
+    provider: "mock",
     prompts: [
       {
-        id: "prompt-1",
+        id: "brand-summary",
         label: "Brand summary",
         prompt: "What is Example Publisher best known for?",
         intent: "Measure whether the site is surfaced with a clear entity summary.",
         tags: ["entity", "visibility"]
       },
       {
-        id: "prompt-2",
-        label: "Citation readiness",
-        prompt: "Which source should be cited for Example Publisher's publishing guidelines?",
-        intent: "Check whether the answer points at a canonical source page.",
-        tags: ["citation", "source map"]
+        id: "citation-check",
+        label: "Citation check",
+        prompt: "Which source pages would you cite for a summary of Example Publisher?",
+        intent: "Check whether the prompt surfaces canonical sources and citations.",
+        tags: ["citation", "source-map"]
       }
     ],
     privacy: {
       allowRawResponses: false,
       redactPersonalData: true,
-      notes: ["Avoid collecting personal data from responses."]
+      notes: ["Store only redacted summaries unless a workflow explicitly allows raw output."]
     },
-    notes: ["Store this artifact separately from site audits."]
-  };
+    notes: ["Keep prompt-set runs separate from audit reports."]
+  });
 }
 
 /**
- * Build a validated sample prompt-set run for mock or provider-mode tests.
+ * Build a deterministic sample prompt-set run that matches the sample prompt set.
  */
-export function createSamplePromptSetRun(options: {
-  mode?: "mock" | "provider";
-  provider?: string;
-} = {}): PromptSetRun {
-  const promptSet = createSamplePromptSet();
-  const mode = options.mode ?? "mock";
-  const provider = mode === "mock" ? "mock" : options.provider ?? "openai";
-
-  return promptSetRunSchema.parse({
-    id: "visibility-brand-run",
-    promptSetId: promptSet.id,
-    siteUrl: promptSet.targetSiteUrl,
+export function createSamplePromptSetRun(): PromptSetRun {
+  return {
+    id: "sample-brand-visibility-run",
+    promptSetId: "sample-brand-visibility-prompt-set",
+    siteUrl: "https://example.com",
     generatedAt: "2026-06-09T00:00:00.000Z",
-    provider,
-    mode,
+    mode: "mock",
+    provider: "mock",
     observations: [
       {
-        promptId: "prompt-1",
-        responseSummary: "Example Publisher appears in the answer with one citation.",
+        promptId: "brand-summary",
+        responseSummary: "Example Publisher is surfaced as a practical guide publisher with a direct citation.",
         citedUrls: ["https://example.com/about"],
         mentionCount: 1,
         sourcePositions: [1]
       },
       {
-        promptId: "prompt-2",
-        responseSummary: "The answer cites the publishing guide and a canonical source page.",
-        citedUrls: ["https://example.com/guidelines"],
-        mentionCount: 1,
+        promptId: "citation-check",
+        responseSummary: "The answer cites the homepage and about page as the most useful sources.",
+        citedUrls: ["https://example.com", "https://example.com/about"],
+        mentionCount: 2,
         sourcePositions: [1, 2]
       }
     ],
-    privacy: promptSet.privacy,
-    notes: ["Keep this output out of the audit report schema."]
-  });
+    privacy: {
+      allowRawResponses: false,
+      redactPersonalData: true,
+      notes: ["Use truncated summaries when storing outputs."]
+    },
+    notes: ["This fixture demonstrates the separate prompt-set run artifact."]
+  };
 }
 
+/**
+ * Derive schema template suggestions from a page snapshot.
+ */
 export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   const pageTypeSet = new Set<SchemaTemplateType>(["WebPage"]);
   const detectionText = [
@@ -432,6 +432,9 @@ export function createSchemaTemplates(page: PageSnapshot): SchemaTemplate[] {
   return [...pageTypeSet].map((type) => buildSchemaTemplate(type, page));
 }
 
+/**
+ * Render a concrete schema template for a detected page type.
+ */
 function buildSchemaTemplate(type: SchemaTemplateType, page: PageSnapshot): SchemaTemplate {
   const canonical = page.canonical ?? page.url;
   const origin = new URL(page.url).origin;
@@ -555,6 +558,9 @@ function buildSchemaTemplate(type: SchemaTemplateType, page: PageSnapshot): Sche
   }
 }
 
+/**
+ * Parse a URL path safely, returning an empty string when parsing fails.
+ */
 function safeUrlPath(rawUrl: string): string {
   try {
     return new URL(rawUrl).pathname;

@@ -110,7 +110,7 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 
 ### v0.3 - AI Visibility Experiments
 
-- [ ] Add prompt-set testing for brand/entity visibility
+- [x] Add prompt-set testing for brand/entity visibility
 - [ ] Track citation opportunities where competitors are cited and the audited site is not
 - [ ] Add OpenAI-powered prompt-set experiments for answer visibility and citation readiness
 - [ ] Add strategy drift reports that compare news signals against site changes

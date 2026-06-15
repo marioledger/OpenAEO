@@ -9,7 +9,7 @@ import {
 describe("prompt-set experiments", () => {
   it("parses a provider-agnostic prompt set definition", () => {
     const promptSet = promptSetSchema.parse(createSamplePromptSet());
-    expect(promptSet.provider).toBe("lawful-provider");
+    expect(promptSet.provider).toBe("mock");
     expect(promptSet.prompts).toHaveLength(2);
     expect(promptSet.prompts[0].tags).toEqual(["entity", "visibility"]);
     expect(promptSet.privacy.redactPersonalData).toBe(true);
@@ -23,7 +23,11 @@ describe("prompt-set experiments", () => {
   });
 
   it("parses a provider-mode run with a lawful provider name", () => {
-    const run = promptSetRunSchema.parse(createSamplePromptSetRun({ mode: "provider" }));
+    const run = promptSetRunSchema.parse({
+      ...createSamplePromptSetRun(),
+      mode: "provider",
+      provider: "openai"
+    });
     expect(run.mode).toBe("provider");
     expect(run.provider).toBe("openai");
   });
