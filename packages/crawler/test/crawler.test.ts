@@ -17,6 +17,10 @@ const server = createServer((request, response) => {
     response.end("# Fixture\n- /\n- /about\n");
     return;
   }
+  if (path === "/llms-full.txt") {
+    response.end("# Fixture Full Pack\n- /\n- /about\n");
+    return;
+  }
   if (path === "/redirect") {
     response.statusCode = 302;
     response.setHeader("location", "/about");
@@ -74,6 +78,7 @@ describe("crawlSite", () => {
     expect(result.pages[0]?.title).toBe("Fixture Site");
     expect(result.pages[0]?.schemaTypes).toContain("Article");
     expect(result.siteSignals.llmsTxt.found).toBe(true);
+    expect(result.siteSignals.llmsFullTxt.found).toBe(true);
     expect(result.siteSignals.sitemap.discoveredUrls).toContain(`${baseUrl}/`);
   });
 
