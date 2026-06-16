@@ -58,6 +58,24 @@ afterAll(async () => {
 });
 
 describe("openaeo cli", () => {
+  it("prints the package version", async () => {
+    const cliEntry = new URL("../src/index.ts", import.meta.url).href;
+    const result = await execa(
+      "node",
+      [
+        "--import",
+        "tsx",
+        "--input-type=module",
+        "-e",
+        `process.argv = ["node", "openaeo", "--version"]; await import(${JSON.stringify(cliEntry)});`
+      ],
+      {
+        cwd: process.cwd()
+      }
+    );
+    expect(result.stdout).toBe("0.1.0");
+  });
+
   it("writes JSON and Markdown reports", async () => {
     const outDir = await mkdtemp(join(tmpdir(), "openaeo-"));
     try {

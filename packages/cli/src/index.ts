@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { createRequire } from "node:module";
 import { Command } from "commander";
 import { auditCrawl, generateMarkdownReport } from "@openaeo/audit";
 import { crawlSite } from "@openaeo/crawler";
@@ -42,11 +43,13 @@ interface CompareCommandOptions {
 }
 
 const program = new Command();
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json") as { version: string };
 
 program
   .name("openaeo")
   .description("Audit websites for AI answer-engine readiness, classic SEO health, and attribution signals.")
-  .version("0.1.0");
+  .version(version);
 
 program
   .command("audit")
