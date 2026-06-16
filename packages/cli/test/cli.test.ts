@@ -57,6 +57,10 @@ afterAll(async () => {
   await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
 });
 
+const cliPackageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")) as {
+  version: string;
+};
+
 describe("openaeo cli", () => {
   it("prints the package version", async () => {
     const cliEntry = new URL("../src/index.ts", import.meta.url).href;
@@ -73,7 +77,7 @@ describe("openaeo cli", () => {
         cwd: process.cwd()
       }
     );
-    expect(result.stdout).toBe("0.1.0");
+    expect(result.stdout).toBe(cliPackageJson.version);
   });
 
   it("writes JSON and Markdown reports", async () => {
