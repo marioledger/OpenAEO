@@ -198,6 +198,7 @@ apps/web              Next.js dashboard
 packages/cli          openaeo audit <url>
 packages/crawler      respectful site crawler
 packages/audit        scoring, rules, fixes, AI analysis
+packages/strategy     recurring strategy monitoring and brief generation
 packages/schemas      shared Zod schemas and sample report
 docs                  launch notes, scheduled audit docs, and assets
 examples/fixtures     local fixture site for validation
