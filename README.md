@@ -23,6 +23,7 @@ OpenAEO helps both sides of that bargain.
 - Crawls a site respectfully with robots.txt and sitemap awareness.
 - Audits classic SEO signals: titles, descriptions, canonicals, headings, links, status codes.
 - Audits AEO/GEO signals: `llms.txt`, `llms-full.txt`, schema.org JSON-LD, answer blocks, citations, author/source metadata, freshness, and internal source paths.
+- Checks bounded link health, including broken internal/external targets and redirect chains.
 - Generates JSON and Markdown reports.
 - Generates practical fixes such as starter `llms.txt`, JSON-LD templates, and citation block patterns.
 - Uses the OpenAI API for model-generated recommendations when `OPENAI_API_KEY` or `--openai-api-key` is provided.
@@ -101,8 +102,8 @@ OpenAEO is early, but the direction is intentionally practical: help publishers 
 
 - [x] Add report comparison between audit runs
 - [x] Add more schema templates for Article, FAQPage, Product, Organization, SoftwareApplication, and Dataset
-- [ ] Add broken-link and redirect-chain reporting
-- [ ] Add configurable crawl budgets
+- [x] Add broken-link and redirect-chain reporting
+- [x] Add configurable crawl budgets and link-check budgets
 - [x] Add URL include/exclude crawl patterns
 - [x] Add exportable GitHub Actions templates for [scheduled audits](docs/scheduled-audits.md)
 - [ ] Add a public gallery of anonymized example reports
@@ -225,6 +226,9 @@ Audit options:
 --allow-private-network  Allow localhost/private-network targets for trusted local fixtures
 --include <pattern>      Only crawl URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns
 --exclude <pattern>      Skip URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns
+--max-link-checks <n>    Maximum internal/external links to verify
+--skip-external-link-checks
+                         Only verify same-origin links
 ```
 
 Monitor options:

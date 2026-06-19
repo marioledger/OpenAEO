@@ -27,6 +27,11 @@ const server = createServer((request, response) => {
     response.end();
     return;
   }
+  if (path === "/missing") {
+    response.statusCode = 404;
+    response.end("missing");
+    return;
+  }
   if (path === "/about") {
     response.end("<html><head><title>About</title></head><body><h1>About</h1></body></html>");
     return;
@@ -48,6 +53,8 @@ const server = createServer((request, response) => {
         <h1>Fixture Site</h1>
         <a href="/about">About</a>
         <a href="/draft">Draft</a>
+        <a href="/missing">Missing</a>
+        <a href="/redirect">Redirect</a>
         <a href="https://schema.org/Article">Schema</a>
       </body>
     </html>`);
@@ -73,19 +80,25 @@ describe("crawlSite", () => {
   });
 
   it("collects page and site signals", async () => {
-    const result = await crawlSite(baseUrl, { maxPages: 2, allowPrivateNetwork: true });
+    const result = await crawlSite(baseUrl, { maxPages: 2, allowPrivateNetwork: true, checkExternalLinks: false });
     expect(result.pages.length).toBeGreaterThanOrEqual(1);
     expect(result.pages[0]?.title).toBe("Fixture Site");
     expect(result.pages[0]?.schemaTypes).toContain("Article");
     expect(result.siteSignals.llmsTxt.found).toBe(true);
     expect(result.siteSignals.llmsFullTxt.found).toBe(true);
     expect(result.siteSignals.sitemap.discoveredUrls).toContain(`${baseUrl}/`);
+    expect(result.linkChecks.some((link) => link.targetUrl === `${baseUrl}/missing` && !link.ok)).toBe(true);
+    expect(result.linkChecks.find((link) => link.targetUrl === `${baseUrl}/redirect`)?.redirectChain).toEqual([
+      `${baseUrl}/redirect`,
+      `${baseUrl}/about`
+    ]);
   });
 
   it("applies include and exclude patterns to discovered URLs", async () => {
     const result = await crawlSite(baseUrl, {
       maxPages: 3,
       allowPrivateNetwork: true,
+      checkExternalLinks: false,
       includePatterns: ["/ab*", "/dra*"],
       excludePatterns: ["/dra*"]
     });

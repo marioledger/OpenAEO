@@ -7,11 +7,15 @@ import {
   type AuditIssue,
   type AuditReport,
   type GeneratedFix,
+  type LinkCheck,
   type PageSnapshot
 } from "@openaeo/schemas";
 export {
   HOSTED_AUDIT_DEFAULT_MAX_PAGES,
+  HOSTED_AUDIT_DEFAULT_MAX_LINK_CHECKS,
+  HOSTED_AUDIT_MAX_LINK_CHECKS,
   HOSTED_AUDIT_MAX_PAGES,
+  HOSTED_AUDIT_MAX_PATTERNS,
   HOSTED_AUDIT_MAX_REQUEST_BYTES,
   HOSTED_AUDIT_TIMEOUT_MS,
   parseHostedAuditRequest,
@@ -30,6 +34,7 @@ export async function auditCrawl(crawl: CrawlResult, options: AuditOptions = {})
   const issues = collectIssues(crawl);
   const fixes = generateFixes(crawl, issues);
   const categoryScores = scoreCategories(crawl.pages, crawl.siteSignals.llmsTxt.found, issues);
+  const linkChecks = crawl.linkChecks ?? [];
   const score = Math.round(
     categoryScores.seo * 0.3 +
       categoryScores.aeo * 0.3 +
@@ -49,6 +54,7 @@ export async function auditCrawl(crawl: CrawlResult, options: AuditOptions = {})
     score,
     categoryScores,
     pages: crawl.pages,
+    linkChecks,
     siteSignals: crawl.siteSignals,
     issues,
     fixes,
@@ -67,6 +73,7 @@ export async function auditCrawl(crawl: CrawlResult, options: AuditOptions = {})
 export function collectIssues(crawl: CrawlResult): AuditIssue[] {
   const issues: AuditIssue[] = [];
   const homepage = crawl.pages[0];
+  const linkChecks = crawl.linkChecks ?? [];
 
   if (crawl.pages.length === 0) {
     issues.push({
@@ -130,6 +137,37 @@ export function collectIssues(crawl: CrawlResult): AuditIssue[] {
       url: crawl.siteSignals.llmsFullTxt.url,
       evidence: ["llms-full.txt was not found"],
       recommendation: "Add llms-full.txt for curated full-text source material when the site has docs, research, or evergreen guides."
+    });
+  }
+
+  for (const link of linkChecks.filter((check) => !check.ok).slice(0, 12)) {
+    issues.push({
+      id: `broken-link-${hash(`${link.sourceUrl}-${link.targetUrl}`)}`,
+      title: link.kind === "internal" ? "Fix broken internal link" : "Review broken external citation link",
+      description: `${link.targetUrl} could not be verified from ${link.sourceUrl}.`,
+      category: link.kind === "internal" ? "crawler" : "geo",
+      severity: link.kind === "internal" ? "high" : "medium",
+      url: link.sourceUrl,
+      evidence: [
+        `Target: ${link.targetUrl}`,
+        link.status ? `HTTP ${link.status}` : link.error ?? "Fetch failed"
+      ],
+      recommendation: link.kind === "internal"
+        ? "Update or remove the internal link so crawlers do not hit dead source paths."
+        : "Replace, archive, or annotate the citation target so factual claims stay verifiable."
+    });
+  }
+
+  for (const link of linkChecks.filter((check) => check.ok && check.redirectChain.length > 1).slice(0, 8)) {
+    issues.push({
+      id: `link-redirect-chain-${hash(`${link.sourceUrl}-${link.targetUrl}`)}`,
+      title: "Shorten linked redirect chain",
+      description: "A linked URL passes through multiple redirects before reaching its final destination.",
+      category: "seo",
+      severity: "low",
+      url: link.sourceUrl,
+      evidence: [`${link.redirectChain.join(" -> ")}`],
+      recommendation: "Link directly to the final canonical URL to reduce crawl waste and attribution ambiguity."
     });
   }
 
@@ -209,6 +247,7 @@ export function generateFixes(crawl: CrawlResult, issues: AuditIssue[]): Generat
   const origin = crawl.origin;
   const canonicalUrls = crawl.pages.map((page) => page.canonical ?? page.url).slice(0, 20);
   const hasIssue = (id: string) => issues.some((issue) => issue.id === id || issue.id.includes(id));
+  const linkChecks = crawl.linkChecks ?? [];
 
   if (hasIssue("missing-llms-txt")) {
     fixes.push({
@@ -254,6 +293,31 @@ export function generateFixes(crawl: CrawlResult, issues: AuditIssue[]): Generat
     });
   }
 
+  const brokenLinks = linkChecks.filter((link) => !link.ok);
+  if (brokenLinks.length > 0) {
+    fixes.push({
+      id: "broken-link-remediation",
+      title: "Broken link remediation queue",
+      target: "Source links",
+      body: brokenLinks.slice(0, 20).map(formatLinkFixLine).join("\n"),
+      rationale: "Dead internal paths and stale citations make pages harder to crawl, verify, and credit."
+    });
+  }
+
+  const redirectChains = linkChecks.filter((link) => link.ok && link.redirectChain.length > 1);
+  if (redirectChains.length > 0) {
+    fixes.push({
+      id: "redirect-chain-cleanup",
+      title: "Redirect chain cleanup queue",
+      target: "Canonical link targets",
+      body: redirectChains.slice(0, 20).map((link) => {
+        const finalUrl = link.finalUrl ?? link.redirectChain.at(-1) ?? link.targetUrl;
+        return `- ${link.sourceUrl}\n  Replace ${link.targetUrl} with ${finalUrl}`;
+      }).join("\n"),
+      rationale: "Direct canonical links reduce crawler work and make source attribution less ambiguous."
+    });
+  }
+
   return fixes;
 }
 
@@ -282,7 +346,8 @@ export async function analyzeWithAi(report: AuditReport, options: AuditOptions =
             schemaTypes: page.schemaTypes,
             citationCount: page.citationCount,
             answerBlockCount: page.answerBlockCount
-          }))
+          })),
+          linkHealth: summarizeLinkChecks(report.linkChecks ?? [])
         })
       }
     ],
@@ -340,12 +405,20 @@ export function createMockAnalysis(crawl: Pick<CrawlResult, "pages" | "siteSigna
 }
 
 export function generateMarkdownReport(report: AuditReport): string {
+  const linkChecks = report.linkChecks ?? [];
   const issueLines = report.issues.length
     ? report.issues.map((issue) => `- **${issue.severity.toUpperCase()} / ${issue.category}**: ${issue.title}${issue.url ? ` (${issue.url})` : ""}\n  ${issue.recommendation}`).join("\n")
     : "- No issues found.";
   const fixLines = report.fixes.length
     ? report.fixes.map((fix) => `## ${fix.title}\n\nTarget: \`${fix.target}\`\n\n${fix.rationale}\n\n${formatFixFence(fix)}\n${fix.body}\n\`\`\``).join("\n\n")
     : "No generated fixes required.";
+  const linkSummary = summarizeLinkChecks(linkChecks);
+  const brokenLinkLines = linkChecks.filter((link) => !link.ok).length
+    ? linkChecks.filter((link) => !link.ok).slice(0, 20).map(formatLinkReportLine).join("\n")
+    : "- No broken links found in the checked sample.";
+  const redirectLines = linkChecks.filter((link) => link.redirectChain.length > 0).length
+    ? linkChecks.filter((link) => link.redirectChain.length > 0).slice(0, 20).map((link) => `- ${link.targetUrl} -> ${link.finalUrl ?? link.redirectChain.at(-1)}`).join("\n")
+    : "- No redirects found in the checked sample.";
 
   return `# OpenAEO Audit Report
 
@@ -371,6 +444,20 @@ ${report.aiAnalysis.summary}
 
 ${issueLines}
 
+## Link Health
+
+- Checked links: ${linkSummary.checked}
+- Broken links: ${linkSummary.broken}
+- Redirected links: ${linkSummary.redirected}
+
+### Broken Links
+
+${brokenLinkLines}
+
+### Redirects
+
+${redirectLines}
+
 ## Generated Fixes
 
 ${fixLines}
@@ -381,6 +468,26 @@ ${fixLines}
 - No ranking manipulation: ${report.ethics.noRankingManipulation ? "yes" : "no"}
 - Attribution first: ${report.ethics.attributionFirst ? "yes" : "no"}
 `;
+}
+
+function summarizeLinkChecks(linkChecks: LinkCheck[]) {
+  return {
+    checked: linkChecks.length,
+    broken: linkChecks.filter((link) => !link.ok).length,
+    redirected: linkChecks.filter((link) => link.redirectChain.length > 0).length,
+    internalBroken: linkChecks.filter((link) => !link.ok && link.kind === "internal").length,
+    externalBroken: linkChecks.filter((link) => !link.ok && link.kind === "external").length
+  };
+}
+
+function formatLinkFixLine(link: LinkCheck): string {
+  const status = link.status ? `HTTP ${link.status}` : link.error ?? "Fetch failed";
+  return `- ${link.sourceUrl}\n  ${link.kind}: ${link.targetUrl}\n  ${status}`;
+}
+
+function formatLinkReportLine(link: LinkCheck): string {
+  const status = link.status ? `HTTP ${link.status}` : link.error ?? "Fetch failed";
+  return `- **${link.kind}** ${link.targetUrl} from ${link.sourceUrl} (${status})`;
 }
 
 function dedupeByType<T extends { type: string }>(templates: T[]): T[] {

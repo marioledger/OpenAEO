@@ -10,6 +10,7 @@ import { generateStrategyMarkdown, runStrategyMonitor } from "@openaeo/strategy"
 
 interface AuditCommandOptions {
   maxPages: string;
+  maxLinkChecks: string;
   out: string;
   json: boolean;
   markdown: boolean;
@@ -21,6 +22,7 @@ interface AuditCommandOptions {
   allowPrivateNetwork: boolean;
   include: string[];
   exclude: string[];
+  skipExternalLinkChecks: boolean;
 }
 
 interface MonitorCommandOptions {
@@ -66,11 +68,17 @@ program
   .option("--allow-private-network", "Allow localhost/private-network targets for trusted local fixtures", false)
   .option("--include <pattern>", "Only crawl URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns", collectRepeatable, [])
   .option("--exclude <pattern>", "Skip URLs whose path matches this pattern (* wildcard only); repeat for multiple patterns", collectRepeatable, [])
+  .option("--max-link-checks <number>", "Maximum internal/external links to verify", "50")
+  .option("--skip-external-link-checks", "Only verify same-origin links", false)
   .action(async (url: string, options: AuditCommandOptions) => {
     const started = Date.now();
     const maxPages = Number.parseInt(options.maxPages, 10);
     if (!Number.isFinite(maxPages) || maxPages < 1) {
       throw new Error("--max-pages must be a positive integer");
+    }
+    const maxLinkChecks = Number.parseInt(options.maxLinkChecks, 10);
+    if (!Number.isFinite(maxLinkChecks) || maxLinkChecks < 0) {
+      throw new Error("--max-link-checks must be zero or a positive integer");
     }
 
     const openAiApiKey = options.openaiApiKey ?? process.env.OPENAI_API_KEY;
@@ -78,7 +86,9 @@ program
       maxPages,
       allowPrivateNetwork: options.allowPrivateNetwork,
       includePatterns: options.include,
-      excludePatterns: options.exclude
+      excludePatterns: options.exclude,
+      maxLinkChecks,
+      checkExternalLinks: !options.skipExternalLinkChecks
     });
     const report = await auditCrawl(crawl, {
       projectName: options.projectName,
@@ -102,6 +112,8 @@ program
     console.log(`OpenAEO score: ${report.score}/100`);
     console.log(`Pages crawled: ${report.pages.length}`);
     console.log(`Issues found: ${report.issues.length}`);
+    console.log(`Links checked: ${report.linkChecks.length}`);
+    console.log(`Broken links: ${report.linkChecks.filter((link) => !link.ok).length}`);
     console.log(`Reports: ${options.json ? jsonPath : ""}${options.json && options.markdown ? ", " : ""}${options.markdown ? markdownPath : ""}`);
     console.log(`Completed in ${Date.now() - started}ms`);
   });
