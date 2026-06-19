@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const issueSeveritySchema = z.enum(["info", "low", "medium", "high"]);
 export const issueCategorySchema = z.enum(["seo", "aeo", "geo", "crawler", "trust"]);
+export const linkKindSchema = z.enum(["internal", "external"]);
 
 export const auditIssueSchema = z.object({
   id: z.string(),
@@ -42,6 +43,17 @@ export const pageSnapshotSchema = z.object({
   answerBlockCount: z.number().int().nonnegative().default(0),
   wordCount: z.number().int().nonnegative().default(0),
   fetchMs: z.number().int().nonnegative().default(0)
+});
+
+export const linkCheckSchema = z.object({
+  sourceUrl: z.string().url(),
+  targetUrl: z.string().url(),
+  kind: linkKindSchema,
+  ok: z.boolean(),
+  status: z.number().int().optional(),
+  finalUrl: z.string().url().optional(),
+  redirectChain: z.array(z.string().url()).default([]),
+  error: z.string().optional()
 });
 
 export const schemaTemplateTypeSchema = z.enum([
@@ -196,6 +208,7 @@ export const auditReportSchema = z.object({
     trust: z.number().min(0).max(100)
   }),
   pages: z.array(pageSnapshotSchema),
+  linkChecks: z.array(linkCheckSchema).default([]),
   siteSignals: siteSignalsSchema,
   issues: z.array(auditIssueSchema),
   fixes: z.array(generatedFixSchema),
@@ -209,9 +222,11 @@ export const auditReportSchema = z.object({
 
 export type IssueSeverity = z.infer<typeof issueSeveritySchema>;
 export type IssueCategory = z.infer<typeof issueCategorySchema>;
+export type LinkKind = z.infer<typeof linkKindSchema>;
 export type AuditIssue = z.infer<typeof auditIssueSchema>;
 export type GeneratedFix = z.infer<typeof generatedFixSchema>;
 export type PageSnapshot = z.infer<typeof pageSnapshotSchema>;
+export type LinkCheck = z.infer<typeof linkCheckSchema>;
 export type SchemaTemplateType = z.infer<typeof schemaTemplateTypeSchema>;
 export type SchemaTemplate = z.infer<typeof schemaTemplateSchema>;
 export type SiteSignals = z.infer<typeof siteSignalsSchema>;
@@ -262,6 +277,17 @@ export function createSampleReport(): AuditReport {
         answerBlockCount: 2,
         wordCount: 620,
         fetchMs: 42
+      }
+    ],
+    linkChecks: [
+      {
+        sourceUrl: "https://example.com",
+        targetUrl: "https://schema.org/Article",
+        kind: "external",
+        ok: true,
+        status: 200,
+        finalUrl: "https://schema.org/Article",
+        redirectChain: []
       }
     ],
     siteSignals: {

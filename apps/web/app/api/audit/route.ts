@@ -3,7 +3,8 @@ import {
   auditCrawl,
   HOSTED_AUDIT_MAX_REQUEST_BYTES,
   HOSTED_AUDIT_TIMEOUT_MS,
-  parseHostedAuditRequest
+  parseHostedAuditRequest,
+  type HostedAuditRequest
 } from "@openaeo/audit";
 import { crawlSite } from "@openaeo/crawler";
 
@@ -16,7 +17,11 @@ export async function POST(request: Request) {
   try {
     const crawl = await crawlSite(requestBody.url, {
       maxPages: requestBody.maxPages,
-      timeoutMs: HOSTED_AUDIT_TIMEOUT_MS
+      timeoutMs: HOSTED_AUDIT_TIMEOUT_MS,
+      includePatterns: requestBody.includePatterns,
+      excludePatterns: requestBody.excludePatterns,
+      checkExternalLinks: requestBody.checkExternalLinks,
+      maxLinkChecks: requestBody.maxLinkChecks
     });
     const openAiApiKey = process.env.OPENAI_API_KEY;
     const report = await auditCrawl(crawl, {
@@ -34,7 +39,7 @@ export async function POST(request: Request) {
 
 async function readHostedRequestBody(
   request: Request
-): Promise<{ url: string; maxPages: number } | { error: string; status: number }> {
+): Promise<HostedAuditRequest | { error: string; status: number }> {
   const contentLength = request.headers.get("content-length");
   if (contentLength && Number(contentLength) > HOSTED_AUDIT_MAX_REQUEST_BYTES) {
     return { error: "Request body is too large", status: 413 };

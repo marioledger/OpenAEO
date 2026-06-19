@@ -7,6 +7,17 @@ const crawl: CrawlResult = {
   startUrl: "https://example.com",
   blockedUrls: [],
   errors: [],
+  linkChecks: [
+    {
+      sourceUrl: "https://example.com",
+      targetUrl: "https://example.com/missing",
+      kind: "internal",
+      ok: false,
+      status: 404,
+      finalUrl: "https://example.com/missing",
+      redirectChain: []
+    }
+  ],
   siteSignals: {
     robotsTxt: { found: true, url: "https://example.com/robots.txt" },
     sitemap: { found: true, url: "https://example.com/sitemap.xml", discoveredUrls: ["https://example.com"] },
@@ -40,6 +51,7 @@ const crawl: CrawlResult = {
 
 const schemaRichCrawl: CrawlResult = {
   ...crawl,
+  linkChecks: [],
   pages: [
     {
       ...crawl.pages[0],
@@ -72,6 +84,7 @@ describe("audit rules", () => {
     expect(issues.map((issue) => issue.id).join(" ")).toContain("missing-schema");
     expect(issues.map((issue) => issue.id).join(" ")).toContain("missing-author");
     expect(issues.map((issue) => issue.id).join(" ")).toContain("redirect-chain");
+    expect(issues.map((issue) => issue.id).join(" ")).toContain("broken-link");
   });
 
   it("creates a valid markdown report", async () => {
@@ -79,7 +92,9 @@ describe("audit rules", () => {
     const markdown = generateMarkdownReport(report);
     expect(report.score).toBeLessThan(80);
     expect(report.fixes.some((fix) => fix.target === "/llms.txt")).toBe(true);
+    expect(report.fixes.some((fix) => fix.id === "broken-link-remediation")).toBe(true);
     expect(markdown).toContain("# OpenAEO Audit Report");
+    expect(markdown).toContain("## Link Health");
     expect(markdown).toContain("```json");
     expect(markdown).toContain("```md");
   });

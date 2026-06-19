@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
-import type { PageSnapshot, SiteSignals } from "@openaeo/schemas";
+import type { LinkCheck, PageSnapshot, SiteSignals } from "@openaeo/schemas";
 
 export interface CrawlOptions {
   maxPages?: number;
@@ -10,12 +10,15 @@ export interface CrawlOptions {
   allowPrivateNetwork?: boolean;
   includePatterns?: string[];
   excludePatterns?: string[];
+  checkExternalLinks?: boolean;
+  maxLinkChecks?: number;
 }
 
 export interface CrawlResult {
   origin: string;
   startUrl: string;
   pages: PageSnapshot[];
+  linkChecks: LinkCheck[];
   siteSignals: SiteSignals;
   blockedUrls: string[];
   errors: string[];
@@ -31,6 +34,8 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
   const userAgent = options.userAgent ?? DEFAULT_USER_AGENT;
   const allowPrivateNetwork = options.allowPrivateNetwork ?? false;
   const shouldCrawl = createUrlFilter(options.includePatterns ?? [], options.excludePatterns ?? []);
+  const checkExternalLinks = options.checkExternalLinks ?? true;
+  const maxLinkChecks = Math.max(0, options.maxLinkChecks ?? 50);
   const errors: string[] = [];
   const blockedUrls: string[] = [];
 
@@ -69,10 +74,19 @@ export async function crawlSite(startUrl: string, options: CrawlOptions = {}): P
     }
   }
 
+  const linkChecks = await checkPageLinks(pages, {
+    timeoutMs,
+    userAgent,
+    allowPrivateNetwork,
+    checkExternalLinks,
+    maxLinkChecks
+  });
+
   return {
     origin,
     startUrl: normalizedStart,
     pages,
+    linkChecks,
     siteSignals,
     blockedUrls,
     errors
@@ -187,6 +201,61 @@ async function fetchPageSnapshot(
     wordCount: text ? text.split(/\s+/).length : 0,
     fetchMs: Date.now() - started
   };
+}
+
+async function checkPageLinks(
+  pages: PageSnapshot[],
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork" | "checkExternalLinks" | "maxLinkChecks">>
+): Promise<LinkCheck[]> {
+  if (options.maxLinkChecks === 0) return [];
+  const candidates = uniqueBy(
+    pages.flatMap((page) => [
+      ...page.internalLinks.map((targetUrl) => ({
+        sourceUrl: page.url,
+        targetUrl,
+        kind: "internal" as const
+      })),
+      ...(options.checkExternalLinks
+        ? page.externalLinks.map((targetUrl) => ({
+            sourceUrl: page.url,
+            targetUrl,
+            kind: "external" as const
+          }))
+        : [])
+    ]),
+    (link) => `${link.sourceUrl} ${link.targetUrl}`
+  ).slice(0, options.maxLinkChecks);
+
+  const checks: LinkCheck[] = [];
+  const concurrency = 6;
+  for (let index = 0; index < candidates.length; index += concurrency) {
+    const batch = await Promise.all(candidates.slice(index, index + concurrency).map((link) => checkLink(link, options)));
+    checks.push(...batch);
+  }
+  return checks;
+}
+
+async function checkLink(
+  link: Pick<LinkCheck, "sourceUrl" | "targetUrl" | "kind">,
+  options: Required<Pick<CrawlOptions, "timeoutMs" | "userAgent" | "allowPrivateNetwork">>
+): Promise<LinkCheck> {
+  try {
+    const { response, redirectChain } = await fetchWithTimeout(link.targetUrl, options, 5);
+    return {
+      ...link,
+      ok: response.status < 400,
+      status: response.status,
+      finalUrl: redirectChain.at(-1) ?? link.targetUrl,
+      redirectChain: redirectChain.length > 1 ? redirectChain : []
+    };
+  } catch (error) {
+    return {
+      ...link,
+      ok: false,
+      redirectChain: [],
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
 }
 
 function extractSchemaTypes($: cheerio.CheerioAPI): string[] {
@@ -408,4 +477,14 @@ function urlFilterCandidate(url: string): string {
 
 function unique<T>(items: T[]): T[] {
   return [...new Set(items)];
+}
+
+function uniqueBy<T>(items: T[], getKey: (item: T) => string): T[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = getKey(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
